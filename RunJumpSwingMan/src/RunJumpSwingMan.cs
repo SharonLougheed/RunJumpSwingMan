@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.IO;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -12,6 +13,9 @@ namespace RunJumpSwingMan {
 		private GraphicsDeviceManager graphics;
 		private SpriteBatch spriteBatch;
 
+		private VertexPositionTexture[] floorVertexes;
+		private BasicEffect floorEffect;
+
 		public RunJumpSwingMan() {
 			graphics = new GraphicsDeviceManager( this );
 			Content.RootDirectory = "Content";
@@ -24,7 +28,15 @@ namespace RunJumpSwingMan {
 		/// and initialize them as well.
 		/// </summary>
 		protected override void Initialize() {
-			// TODO: Add your initialization logic here
+			floorVertexes = new VertexPositionTexture[ 6 ];
+			floorVertexes[ 0 ].Position = new Vector3( -20.0f, -20.0f, 0.0f );
+			floorVertexes[ 1 ].Position = new Vector3( -20.0f, 20.0f, 0.0f );
+			floorVertexes[ 2 ].Position = new Vector3( 20.0f, -20.0f, 0.0f );
+			floorVertexes[ 3 ].Position = floorVertexes[ 1 ].Position;
+			floorVertexes[ 4 ].Position = new Vector3( 20.0f, 20.0f, 0.0f );
+			floorVertexes[ 5 ].Position = floorVertexes[ 2 ].Position;
+
+			floorEffect = new BasicEffect( graphics.GraphicsDevice );
 
 			base.Initialize();
 		}
@@ -36,8 +48,6 @@ namespace RunJumpSwingMan {
 		protected override void LoadContent() {
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch( GraphicsDevice );
-
-			// TODO: use this.Content to load your game content here
 		}
 
 		/// <summary>
@@ -54,10 +64,9 @@ namespace RunJumpSwingMan {
 		/// </summary>
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Update( GameTime gameTime ) {
-			if ( GamePad.GetState( PlayerIndex.One ).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown( Keys.Escape ) )
+			if ( Keyboard.GetState().IsKeyDown( Keys.Escape ) ) {
 				Exit();
-
-			// TODO: Add your update logic here
+			}
 
 			base.Update( gameTime );
 		}
@@ -69,9 +78,30 @@ namespace RunJumpSwingMan {
 		protected override void Draw( GameTime gameTime ) {
 			GraphicsDevice.Clear( Color.CornflowerBlue );
 
-			// TODO: Add your drawing code here
+			DrawGround();
 
 			base.Draw( gameTime );
+		}
+
+		private void DrawGround() {
+			Vector3 cameraPosition = new Vector3( 0.0f, 40.0f, 20.0f );
+			Vector3 cameraLookAtVector = Vector3.Zero;
+			Vector3 cameraUpVector = Vector3.UnitZ;
+
+			floorEffect.View = Matrix.CreateLookAt( cameraPosition, cameraLookAtVector, cameraUpVector );
+
+			float aspectRatio = graphics.PreferredBackBufferWidth / ( float )graphics.PreferredBackBufferHeight;
+			float fov = Microsoft.Xna.Framework.MathHelper.PiOver4;
+			float nearClipPlaneDistance = 1.0f;
+			float farClipPlaneDistance = 200.0f;
+
+			floorEffect.Projection = Matrix.CreatePerspectiveFieldOfView( fov, aspectRatio, nearClipPlaneDistance, farClipPlaneDistance );
+
+			foreach ( EffectPass pass in floorEffect.CurrentTechnique.Passes ) {
+				pass.Apply();
+
+				graphics.GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>( PrimitiveType.TriangleList, floorVertexes, 0, 2 );
+			}
 		}
 
 	}
