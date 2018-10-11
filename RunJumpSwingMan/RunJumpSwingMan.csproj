@@ -42,6 +42,8 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="src\Framework\Entity.cs" />
+    <Compile Include="src\Framework\World.cs" />
     <Compile Include="src\RunJumpSwingMan.cs" />
     <Compile Include="src\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
