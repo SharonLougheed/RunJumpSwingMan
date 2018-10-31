@@ -47,6 +47,7 @@ namespace RunJumpSwingMan {
 		*/
 		public void Update( List<VertexPositionTexture[]> objects, Vector3 position, Vector3 target, Vector3 upVector, float lookAngleX, float lookAngleY) {
 
+			//X and Y are flipped
 			Matrix rotationY = Matrix.CreateRotationY(lookAngleX);
 			Matrix rotationX = Matrix.CreateRotationX(lookAngleY);
 

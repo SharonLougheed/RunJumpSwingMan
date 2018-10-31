@@ -17,16 +17,16 @@ namespace RunJumpSwingMan {
 		private SpriteBatch spriteBatch;
 
 		private Camera camera;
-		private List<VertexPositionTexture[]> objects;
-
+		private List<VertexPositionTexture[]> objects; //Objects to render
 		private Vector3 cameraPosition = new Vector3( 0.0f, 40.0f, 20.0f );
 		private Vector3 cameraTarget = Vector3.Zero;
 		private Vector3 cameraUpVector = Vector3.UnitZ;
-		private float lookAngleX = 0.0f, lookAngleY = 0.0f;
-		private float rotationSpeed = 0.05f;
-		private int halfWidth, halfHeight;
 
-		private MouseState previousMouseState;
+		//Camera settings
+		private float lookAngleX = 0.0f, lookAngleY = 0.0f; //In radians
+		private float rotationSpeed = 0.01f;
+		private float maxXRotation = (float)Math.PI, maxYRotation = (float)Math.PI; //In radians (2pi for no limit)
+		private int halfWidth, halfHeight;
 
 		public RunJumpSwingMan() {
 			graphics = new GraphicsDeviceManager( this );
@@ -65,8 +65,7 @@ namespace RunJumpSwingMan {
 			Mouse.SetPosition(halfWidth, halfHeight);
 			Mouse.SetCursor(MouseCursor.Crosshair);
 			this.IsMouseVisible = false;
-
-			previousMouseState = Mouse.GetState();
+			
 			base.Initialize();
 		}
 
@@ -105,46 +104,41 @@ namespace RunJumpSwingMan {
 		/// </summary>
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw(GameTime gameTime) {
+			GraphicsDevice.Clear(Color.DarkSlateGray);
+			UpdateCamera();
+			base.Draw( gameTime );
+		}
 
+		/*
+		====================
+		UpdateCamera()
+
+		  Updates camera position based on mouse movement and passes information to the camera.
+		====================
+		*/
+		void UpdateCamera()
+		{
 			MouseState currentMouseState = Mouse.GetState();
-			int moveX = 0;
-			int moveY = 0;
-			if (currentMouseState.X < halfWidth && currentMouseState.X < previousMouseState.X)
-				moveX = -1;
-			else if (currentMouseState.X > halfWidth && currentMouseState.X > previousMouseState.X)
-				moveX = 1;
 
-			if (currentMouseState.Y < halfHeight && currentMouseState.Y < previousMouseState.Y)
-				moveY = -1;
-			else if (currentMouseState.Y > halfHeight && currentMouseState.Y > previousMouseState.Y)
-				moveY = 1;
-
+			int moveX = currentMouseState.X - halfWidth;
 			float newLookAngleX = lookAngleX + moveX * rotationSpeed;
-			if (newLookAngleX >= -Math.PI/4 && newLookAngleX <= Math.PI/4) {
+			if (newLookAngleX >= -maxXRotation && newLookAngleX <= maxXRotation)
+			{
 				lookAngleX = newLookAngleX;
-				lookAngleX = (float)(((double)lookAngleX) % (2 * Math.PI));
+				lookAngleX = lookAngleX % (float)(2.0f * Math.PI);
 			}
 
+			int moveY = currentMouseState.Y - halfHeight;
 			float newLookAngleY = lookAngleY + moveY * rotationSpeed;
-			if (newLookAngleY >= -Math.PI/4 && newLookAngleY <= Math.PI/4)
+			if (newLookAngleY >= -maxYRotation && newLookAngleY <= maxYRotation)
 			{
 				lookAngleY = newLookAngleY;
-				lookAngleY = (float)(((double)lookAngleY) % (2 * Math.PI));
+				lookAngleY = lookAngleY % (float)(2.0f * Math.PI);
 			}
-
-
-			/*
-			cameraTarget = new Vector3(	cameraLookAtVector.X + moveX,
-												cameraLookAtVector.Y + moveY,
-												cameraLookAtVector.Z			);
-			*/
-			previousMouseState = Mouse.GetState();
+			
 			Mouse.SetPosition(halfWidth, halfHeight);
 
-			GraphicsDevice.Clear( Color.DarkSlateGray );
-			//Vector3 cameraTargetRotated = Vector3.Cross();
-			camera.Update( objects, cameraPosition, cameraTarget, cameraUpVector, lookAngleX, lookAngleY);
-			base.Draw( gameTime );
+			camera.Update(objects, cameraPosition, cameraTarget, cameraUpVector, lookAngleX, lookAngleY);
 		}
 	}
 }
