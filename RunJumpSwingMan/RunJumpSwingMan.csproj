@@ -43,6 +43,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src\Framework\Entity.cs" />
+    <Compile Include="src\Framework\Geometry\Plane.cs" />
+    <Compile Include="src\Framework\Geometry\Polygon.cs" />
+    <Compile Include="src\Framework\Geometry\Ray.cs" />
     <Compile Include="src\Framework\World.cs" />
     <Compile Include="src\RunJumpSwingMan.cs" />
     <Compile Include="src\Program.cs" />
