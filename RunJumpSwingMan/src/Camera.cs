@@ -17,23 +17,17 @@ namespace RunJumpSwingMan {
 	class Camera {
 
 		private GraphicsDeviceManager graphics;
-		private BasicEffect basicEffect;
-		float speed = 0.5F;
+		private Vector3[] lightDiffuseColor = new Vector3[3];
+		private Vector3[] lightDirection = new Vector3[3];
+		private Vector3[] lightSpecularColor = new Vector3[3];
+		private bool[] directionalLightEnabled = new bool[3];
 
 		public Camera( GraphicsDeviceManager gfx ) {
 			graphics = gfx;
-			basicEffect = new BasicEffect( graphics.GraphicsDevice );
-		}
-
-		private void DrawModel(Model model, Matrix world, Matrix view, Matrix projection) {
-			foreach (ModelMesh mesh in model.Meshes) {
-				foreach (BasicEffect effect in mesh.Effects) {
-					effect.World = world;
-					effect.View = view;
-					effect.Projection = projection;
-				}
-				mesh.Draw();
-			}
+			lightDiffuseColor[0] = new Vector3( 1.0f, 1.0f, 1.0f ); // a white light
+			lightDirection[0] = new Vector3( 0f, 1.0f, 0f );  // 45 degrees
+			lightSpecularColor[0] = new Vector3( 1.0f, 1.0f, 1.0f ); // with white highlights
+			directionalLightEnabled[0] = true;
 		}
 
 		/*
@@ -45,97 +39,62 @@ namespace RunJumpSwingMan {
 		  To be called from the runner class.
 		====================
 		*/
-		public void Update( List<VertexPositionTexture[]> objects, Vector3 position, Vector3 target, Vector3 upVector, float lookAngleX, float lookAngleY) {
+		public void Update(List<Model> models, List<VertexPositionTexture[]> verticesObjects, List<BasicEffect[]> basicEffectsforVerticesObjects,
+			Vector3 position, Vector3 target, Vector3 upVector, float lookAngleX, float lookAngleY) {
+
 
 			//X and Y are flipped
 			Matrix rotationY = Matrix.CreateRotationY(lookAngleX);
 			Matrix rotationX = Matrix.CreateRotationX(lookAngleY);
-
-			basicEffect.View = Matrix.CreateLookAt( position, target, upVector ) * rotationY * rotationX;
 
 			float aspectRatio = graphics.PreferredBackBufferWidth / (float)graphics.PreferredBackBufferHeight;
 			float fov = Microsoft.Xna.Framework.MathHelper.PiOver4;
 			float nearClipPlaneDistance = 1.0f;
 			float farClipPlaneDistance = 200.0f;
 
-			basicEffect.Projection = Matrix.CreatePerspectiveFieldOfView( fov, aspectRatio, nearClipPlaneDistance, farClipPlaneDistance );
+			for (int i = 0; i < verticesObjects.Count; i++) {
+				VertexPositionTexture[] obj = verticesObjects[i];
+				BasicEffect[] basicEffects = basicEffectsforVerticesObjects[i];
+				
+				foreach (BasicEffect basicEffect in basicEffects) {
+					basicEffect.View = Matrix.CreateLookAt(position, target, upVector) * rotationY * rotationX;
+					basicEffect.Projection = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearClipPlaneDistance, farClipPlaneDistance);
 
-			foreach (VertexPositionTexture[] obj in objects ) {
-				foreach( EffectPass pass in basicEffect.CurrentTechnique.Passes ) {
-					pass.Apply();
-					graphics.GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>( PrimitiveType.TriangleList, obj, 0, 2 );
+					//basicEffect.LightingEnabled = true;
+					//basicEffect.DirectionalLight0.Enabled = directionalLightEnabled[0];
+					basicEffect.DirectionalLight0.DiffuseColor = lightDiffuseColor[0];
+					basicEffect.DirectionalLight0.Direction = lightDirection[0];
+					basicEffect.DirectionalLight0.SpecularColor = lightSpecularColor[0];
+
+					foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes) {
+						pass.Apply();
+					}
+				}
+
+				graphics.GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>(PrimitiveType.TriangleList, obj, 0, 2);
+			}
+			
+			foreach (Model model in models) {
+				foreach (ModelMesh mesh in model.Meshes) {
+
+					foreach (BasicEffect basicEffect in mesh.Effects) {
+						basicEffect.View = Matrix.CreateLookAt(position, target, upVector) * rotationY * rotationX;
+						basicEffect.Projection = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearClipPlaneDistance, farClipPlaneDistance);
+
+						//basicEffect.LightingEnabled = true;
+						//basicEffect.DirectionalLight0.Enabled = directionalLightEnabled[0];
+						basicEffect.DirectionalLight0.DiffuseColor = lightDiffuseColor[0];
+						basicEffect.DirectionalLight0.Direction = lightDirection[0];
+						basicEffect.DirectionalLight0.SpecularColor = lightSpecularColor[0];
+
+						foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes) {
+							pass.Apply();
+						}
+					}
+					mesh.Draw();
 				}
 			}
+			
 		}
-
-		
-        //https://gamedev.stackexchange.com/questions/15070/orienting-a-model-to-face-a-target#15078
-        public static Quaternion GetRotation(Vector3 source, Vector3 dest, Vector3 up)
-        {
-            float dot = Vector3.Dot(source, dest);
-
-            if (Math.Abs(dot - (-1.0f)) < 0.000001f)
-            {
-                // vector a and b point exactly in the opposite direction, 
-                // so it is a 180 degrees turn around the up-axis
-                return new Quaternion(up, MathHelper.ToRadians(180.0f));
-            }
-            if (Math.Abs(dot - (1.0f)) < 0.000001f)
-            {
-                // vector a and b point exactly in the same direction
-                // so we return the identity quaternion
-                return Quaternion.Identity;
-            }
-
-            float rotAngle = (float)Math.Acos(dot);
-            Vector3 rotAxis = Vector3.Cross(source, dest);
-            rotAxis = Vector3.Normalize(rotAxis);
-            return Quaternion.CreateFromAxisAngle(rotAxis, rotAngle);
-        }
-
-		/*
-		 * 		/// <summary>
-		/// Allows the game component to update itself.
-		/// </summary>
-		/// <param name="gameTime">Provides a snapshot of timing values.</param>
-		public void Update(GameTime gameTime)
-		{
-			// TODO: Add your update code here
-
-
-			// Move forward and backward
-
-			if (Keyboard.GetState().IsKeyDown(Keys.W))
-				cameraPosition += cameraDirection * speed;
-			if (Keyboard.GetState().IsKeyDown(Keys.S))
-				cameraPosition -= cameraDirection * speed;
-
-			if (Keyboard.GetState().IsKeyDown(Keys.A))
-				cameraPosition += Vector3.Cross(cameraUp, cameraDirection) * speed;
-			if (Keyboard.GetState().IsKeyDown(Keys.D))
-				cameraPosition -= Vector3.Cross(cameraUp, cameraDirection) * speed;
-
-
-
-			// Rotation in the world
-			cameraDirection = Vector3.Transform(cameraDirection, Matrix.CreateFromAxisAngle(cameraUp, (-MathHelper.PiOver4 / 150) * (Mouse.GetState().X - prevMouseState.X)));
-
-
-			cameraDirection = Vector3.Transform(cameraDirection, Matrix.CreateFromAxisAngle(Vector3.Cross(cameraUp, cameraDirection), (MathHelper.PiOver4 / 100) * (Mouse.GetState().Y - prevMouseState.Y)));
-			cameraUp = Vector3.Transform(cameraUp, Matrix.CreateFromAxisAngle(Vector3.Cross(cameraUp, cameraDirection), (MathHelper.PiOver4 / 100) * (Mouse.GetState().Y - prevMouseState.Y)));
-
-			// Reset prevMouseState
-			prevMouseState = Mouse.GetState();
-
-			CreateLookAt();
-
-			base.Update(gameTime);
-		}
-
-		private void CreateLookAt()
-		{
-			view = Matrix.CreateLookAt(cameraPosition, cameraPosition + cameraDirection, cameraUp);
-		}
-		*/
 	}
 }
