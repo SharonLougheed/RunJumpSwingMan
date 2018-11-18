@@ -13,7 +13,7 @@ namespace RunJumpSwingMan {
 		[STAThread]
 		static void Main() {
 			using ( var game = new RunJumpSwingMan() )
-				game.Run();
+				game.Run(); 
 		}
 
 	}

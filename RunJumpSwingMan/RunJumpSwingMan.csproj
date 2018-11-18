@@ -42,6 +42,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="src\Camera.cs" />
     <Compile Include="src\Framework\Entity.cs" />
     <Compile Include="src\Framework\World.cs" />
     <Compile Include="src\RunJumpSwingMan.cs" />
@@ -109,6 +110,7 @@
     <Content Include="Content\RunJumpSwingMan\out\DesktopGL\textures\checkerboard.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\RunJumpSwingMan\models\spike.fbx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\RunJumpSwingMan\textures\checkerboard.png" />
