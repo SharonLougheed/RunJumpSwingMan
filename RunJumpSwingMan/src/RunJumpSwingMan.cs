@@ -79,6 +79,7 @@ namespace RunJumpSwingMan {
 			spriteBatch = new SpriteBatch( GraphicsDevice );
 
 			checkerboardTexture = Content.Load<Texture2D>( "RunJumpSwingMan/out/DesktopGL/textures/checkerboard" );
+			
 			spikeModel = Content.Load<Model>("spike");
 		}
 
