@@ -25,6 +25,10 @@ namespace RunJumpSwingMan {
 		private float rotationSpeed = 0.01f;
 		private float maxXRotation = 2.0f * (float)Math.PI, maxYRotation = 2.0f*(float)Math.PI; //In radians (2pi for no limit)
 		private int halfWidth, halfHeight;
+		private float playerForwardWalkSpeed = 1.0f;
+		private float playerBackwardWalkSpeed = 0.75f;
+		private float playerSidewaysWalkSpeed = 1.0f;
+		private float playerRunMultiplier = 2.0f;
 
 		//For floor
 		private Texture2D checkerboardTexture;
@@ -75,7 +79,7 @@ namespace RunJumpSwingMan {
 			spriteBatch = new SpriteBatch( GraphicsDevice );
 
 			checkerboardTexture = Content.Load<Texture2D>( "RunJumpSwingMan/out/DesktopGL/textures/checkerboard" );
-			
+
 			spikeModel = Content.Load<Model>("spike");
 		}
 
@@ -97,6 +101,22 @@ namespace RunJumpSwingMan {
 		protected override void Update( GameTime gameTime ) {
 			if ( Keyboard.GetState().IsKeyDown( Keys.Escape ) ) {
 				Exit();
+			}
+			else if ( Keyboard.GetState().IsKeyDown( Keys.W ) ) {
+				if ( Keyboard.GetState().IsKeyDown( Keys.LeftShift ) || Keyboard.GetState().IsKeyDown( Keys.RightShift ) ) {
+					cameraPosition = new Vector3(cameraPosition.X, cameraPosition.Y - playerForwardWalkSpeed * playerRunMultiplier, cameraPosition.Z);
+				}
+				else
+					cameraPosition = new Vector3(cameraPosition.X, cameraPosition.Y - playerForwardWalkSpeed, cameraPosition.Z);
+			}
+			else if ( Keyboard.GetState().IsKeyDown( Keys.S ) ) {
+				cameraPosition = new Vector3(cameraPosition.X, cameraPosition.Y + playerBackwardWalkSpeed, cameraPosition.Z);
+			}
+			else if (Keyboard.GetState().IsKeyDown(Keys.A)) {
+				cameraPosition = new Vector3(cameraPosition.X + playerSidewaysWalkSpeed, cameraPosition.Y, cameraPosition.Z);
+			}
+			else if (Keyboard.GetState().IsKeyDown(Keys.D)) {
+				cameraPosition = new Vector3(cameraPosition.X - playerSidewaysWalkSpeed, cameraPosition.Y, cameraPosition.Z);
 			}
 
 			base.Update( gameTime );
@@ -266,7 +286,6 @@ namespace RunJumpSwingMan {
 			}
 
 			int moveY = currentMouseState.Y - halfHeight;
-			Console.Out.WriteLine(lookAngleY + " " + moveY + " " + rotationSpeed);
 			float newLookAngleY = lookAngleY + moveY * rotationSpeed;
 			if (newLookAngleY >= -maxYRotation && newLookAngleY <= maxYRotation) {
 				lookAngleY = newLookAngleY;
