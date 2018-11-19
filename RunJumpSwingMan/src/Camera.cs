@@ -20,29 +20,28 @@ namespace RunJumpSwingMan {
 		private Vector3[] lightDiffuseColor = new Vector3[3];
 		private Vector3[] lightDirection = new Vector3[3];
 		private Vector3[] lightSpecularColor = new Vector3[3];
-		private bool[] directionalLightEnabled = new bool[3];
+		private bool[] directionalLightEnabled = { false, false, false };
+		private Matrix currentViewMatrix;
+		private Matrix currentProjectionMatrix;
 
 		public Camera( GraphicsDeviceManager gfx ) {
 			graphics = gfx;
+
 			lightDiffuseColor[0] = new Vector3( 1.0f, 1.0f, 1.0f ); // a white light
-			lightDirection[0] = new Vector3( 0f, 1.0f, 0f );  // 45 degrees
+			lightDirection[0] = new Vector3( 0.5f, -0.5f, 0.75f );  // some direction of light
 			lightSpecularColor[0] = new Vector3( 1.0f, 1.0f, 1.0f ); // with white highlights
 			directionalLightEnabled[0] = true;
 		}
 
 		/*
 		====================
-		Update( List<VertexPositionTexture[]> objects, Vector3 position, Vector3 lookAtVector, Vector3 upVector)
+		Update( List<VertexPositionTexture[]> objects, Vector3 position, Vector3 lookAtVector, Vector3 upVector )
 
-		  Draws a list of 3D objects (each a list of vertex positions) to the screen,
-		  with the camera centered at a given position, with given lookAt and up vectors
+		  Calculates currentViewMatrix and currentProjectionMatrix with the camera centered at the given position, with given lookAt and up vectors
 		  To be called from the runner class.
 		====================
 		*/
-		public void Update(List<Model> models, List<VertexPositionTexture[]> verticesObjects, List<BasicEffect[]> basicEffectsforVerticesObjects,
-			Vector3 position, Vector3 target, Vector3 upVector, float lookAngleX, float lookAngleY) {
-
-
+		public void Update(Vector3 position, Vector3 target, Vector3 upVector, float lookAngleX, float lookAngleY ) {
 			//X and Y are flipped
 			Matrix rotationY = Matrix.CreateRotationY(lookAngleX);
 			Matrix rotationX = Matrix.CreateRotationX(lookAngleY);
@@ -52,49 +51,74 @@ namespace RunJumpSwingMan {
 			float nearClipPlaneDistance = 1.0f;
 			float farClipPlaneDistance = 200.0f;
 
-			for (int i = 0; i < verticesObjects.Count; i++) {
-				VertexPositionTexture[] obj = verticesObjects[i];
-				BasicEffect[] basicEffects = basicEffectsforVerticesObjects[i];
-				
-				foreach (BasicEffect basicEffect in basicEffects) {
-					basicEffect.View = Matrix.CreateLookAt(position, target, upVector) * rotationY * rotationX;
-					basicEffect.Projection = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearClipPlaneDistance, farClipPlaneDistance);
+			Matrix lookAt = Matrix.CreateLookAt(position, target, upVector);
 
-					//basicEffect.LightingEnabled = true;
-					//basicEffect.DirectionalLight0.Enabled = directionalLightEnabled[0];
+			currentViewMatrix = lookAt * rotationY * rotationX;
+			currentProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearClipPlaneDistance, farClipPlaneDistance);
+		}
+
+
+		/*
+		====================
+		DrawModel( Model model )
+
+		  Draws a 3D model to the screen using currentViewMatrix, currentViewMatrix, and lighting settings
+		  So that all models are drawn correctly.
+		  To be called from the runner class.
+		====================
+		*/
+		public void DrawModel( Model model ) {
+			//Draw model loaded from files
+			foreach (ModelMesh mesh in model.Meshes) {
+				//Effects for this model
+				foreach (BasicEffect basicEffect in mesh.Effects) {
+					basicEffect.View = currentViewMatrix;
+					basicEffect.Projection = currentProjectionMatrix;
+					
+					basicEffect.LightingEnabled = true;
+					basicEffect.DirectionalLight0.Enabled = directionalLightEnabled[0];
 					basicEffect.DirectionalLight0.DiffuseColor = lightDiffuseColor[0];
 					basicEffect.DirectionalLight0.Direction = lightDirection[0];
 					basicEffect.DirectionalLight0.SpecularColor = lightSpecularColor[0];
-
+					
 					foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes) {
 						pass.Apply();
 					}
 				}
+				mesh.Draw();
+			}	
+		}
 
-				graphics.GraphicsDevice.DrawUserPrimitives<VertexPositionTexture>(PrimitiveType.TriangleList, obj, 0, 2);
-			}
-			
-			foreach (Model model in models) {
-				foreach (ModelMesh mesh in model.Meshes) {
 
-					foreach (BasicEffect basicEffect in mesh.Effects) {
-						basicEffect.View = Matrix.CreateLookAt(position, target, upVector) * rotationY * rotationX;
-						basicEffect.Projection = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearClipPlaneDistance, farClipPlaneDistance);
+		/*
+		====================
+		DrawVertices( VertexPositionNormalTexture[] verticesObjects, BasicEffect[] basicEffects )
 
-						//basicEffect.LightingEnabled = true;
-						//basicEffect.DirectionalLight0.Enabled = directionalLightEnabled[0];
-						basicEffect.DirectionalLight0.DiffuseColor = lightDiffuseColor[0];
-						basicEffect.DirectionalLight0.Direction = lightDirection[0];
-						basicEffect.DirectionalLight0.SpecularColor = lightSpecularColor[0];
+		  Draws a 3D model from vertices to the screen using currentViewMatrix, currentViewMatrix, and lighting settings
+		  So that all models are drawn correctly.
+		  To be called from the runner class.
+		====================
+		*/
+		public void DrawVertices( VertexPositionNormalTexture[] verticesObjects, BasicEffect[] basicEffects ) {
+			//Draw model made from vertices
+			foreach (BasicEffect basicEffect in basicEffects) {
+				basicEffect.View = currentViewMatrix;
+				basicEffect.Projection = currentProjectionMatrix;
 
-						foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes) {
-							pass.Apply();
-						}
-					}
-					mesh.Draw();
+				//Couldn't figure out how to get lighting to work here
+				/*
+				basicEffect.LightingEnabled = true;
+				basicEffect.DirectionalLight0.Enabled = directionalLightEnabled[0];
+				basicEffect.DirectionalLight0.DiffuseColor = lightDiffuseColor[0];
+				basicEffect.DirectionalLight0.Direction = lightDirection[0];
+				basicEffect.DirectionalLight0.SpecularColor = lightSpecularColor[0];
+				*/
+
+				foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes) {
+					pass.Apply();
 				}
 			}
-			
+			graphics.GraphicsDevice.DrawUserPrimitives<VertexPositionNormalTexture>(PrimitiveType.TriangleList, verticesObjects, 0, 2);
 		}
 	}
 }
