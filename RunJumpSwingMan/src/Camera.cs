@@ -21,6 +21,7 @@ namespace RunJumpSwingMan {
 		private Vector3[] lightDirection = new Vector3[3];
 		private Vector3[] lightSpecularColor = new Vector3[3];
 		private bool[] directionalLightEnabled = { false, false, false };
+		private Matrix firstLookAtMatrix = Matrix.Identity;
 		private Matrix currentViewMatrix;
 		private Matrix currentProjectionMatrix;
 
@@ -41,7 +42,7 @@ namespace RunJumpSwingMan {
 		  To be called from the runner class.
 		====================
 		*/
-		public void Update(Vector3 position, Vector3 target, Vector3 upVector, float lookAngleX, float lookAngleY ) {
+		public void Update(Vector3 position, Vector3 target, Vector3 upVector, float lookAngleX, float lookAngleY) {
 			//X and Y are flipped
 			Matrix rotationY = Matrix.CreateRotationY(lookAngleX);
 			Matrix rotationX = Matrix.CreateRotationX(lookAngleY);
@@ -51,9 +52,23 @@ namespace RunJumpSwingMan {
 			float nearClipPlaneDistance = 1.0f;
 			float farClipPlaneDistance = 200.0f;
 
-			Matrix lookAt = Matrix.CreateLookAt(position, target, upVector);
+			//Console.Out.WriteLine(lookAngleX + " " + lookAngleY + " " + Matrix.CreateLookAt(position, target, upVector).Up);
 
-			currentViewMatrix = lookAt * rotationY * rotationX;
+			if (firstLookAtMatrix.Equals(Matrix.Identity)) {
+				firstLookAtMatrix = Matrix.CreateLookAt(position, target, upVector);
+				Console.Out.WriteLine("set" + firstLookAtMatrix.Up);
+			}
+			//Correct camera flipping issue
+			else {
+				Console.Out.WriteLine(firstLookAtMatrix.Up + " " + Matrix.CreateLookAt(position, target, upVector).Up);
+				if (firstLookAtMatrix.Up != Matrix.CreateLookAt(position, target, upVector).Up) {
+					upVector = Matrix.Invert(firstLookAtMatrix).Up;
+				}
+			}
+			//Uhh this isn't working
+			//https://gamedev.stackexchange.com/questions/45280/making-a-camera-look-at-a-target-vector
+
+			currentViewMatrix = Matrix.CreateLookAt(position, target, upVector) * rotationY * rotationX;
 			currentProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearClipPlaneDistance, farClipPlaneDistance);
 		}
 
