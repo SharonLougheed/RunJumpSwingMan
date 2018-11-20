@@ -34,9 +34,10 @@ namespace RunJumpSwingMan {
 		private Texture2D checkerboardTexture;
 
 		//Objects to render
+		private Texture2D crosshairImage;
 		private Model spikeModel;
 		private VertexPositionNormalTexture[] floorVertices;
-		BasicEffect floorEffect;
+		private BasicEffect floorEffect;
 
 		public RunJumpSwingMan() {
 			graphics = new GraphicsDeviceManager( this );
@@ -54,7 +55,7 @@ namespace RunJumpSwingMan {
 			base.Initialize(); //This needs to be done first to load content
 
 			//Initialize camera and objects list
-			camera = new Camera(graphics);
+			camera = new Camera(graphics, spriteBatch);
 
 			//Initialize ground and spike models
 			InitializeGround();
@@ -81,6 +82,8 @@ namespace RunJumpSwingMan {
 			checkerboardTexture = Content.Load<Texture2D>( "RunJumpSwingMan/out/DesktopGL/textures/checkerboard" );
 
 			spikeModel = Content.Load<Model>("spike");
+
+			crosshairImage = Content.Load<Texture2D>("RunJumpSwingMan/out/DesktopGL/images/crosshair");
 		}
 
 
@@ -102,23 +105,34 @@ namespace RunJumpSwingMan {
 			if ( Keyboard.GetState().IsKeyDown( Keys.Escape ) ) {
 				Exit();
 			}
-			else if ( Keyboard.GetState().IsKeyDown( Keys.W ) ) {
+			else {
+				float moveSpeed = playerForwardWalkSpeed;
+				//Running?
 				if ( Keyboard.GetState().IsKeyDown( Keys.LeftShift ) || Keyboard.GetState().IsKeyDown( Keys.RightShift ) ) {
-					cameraPosition = new Vector3(cameraPosition.X, cameraPosition.Y, cameraPosition.Z - playerForwardWalkSpeed * playerRunMultiplier);
+					moveSpeed = playerForwardWalkSpeed * playerRunMultiplier;
 				}
-				else
-					cameraPosition = new Vector3(cameraPosition.X, cameraPosition.Y, cameraPosition.Z - playerForwardWalkSpeed);
-			}
-			else if ( Keyboard.GetState().IsKeyDown( Keys.S ) ) {
-				cameraPosition = new Vector3(cameraPosition.X, cameraPosition.Y, cameraPosition.Z + playerBackwardWalkSpeed);
-			}
-			else if (Keyboard.GetState().IsKeyDown(Keys.A)) {
-				cameraPosition = new Vector3(cameraPosition.X + playerSidewaysWalkSpeed, cameraPosition.Y, cameraPosition.Z);
-			}
-			else if (Keyboard.GetState().IsKeyDown(Keys.D)) {
-				cameraPosition = new Vector3(cameraPosition.X - playerSidewaysWalkSpeed, cameraPosition.Y, cameraPosition.Z);
-			}
 
+				Vector3 forward = Vector3.Normalize(camera.GetForwardVector());
+
+				Vector3 right = Vector3.Normalize(camera.GetRightVector());
+
+				if ( Keyboard.GetState().IsKeyDown( Keys.W ) ) { //Front
+					cameraPosition = cameraPosition - forward * moveSpeed;
+					cameraTarget = cameraTarget - forward * moveSpeed;
+				}
+				else if ( Keyboard.GetState().IsKeyDown( Keys.S ) ) { //Back
+					cameraPosition = cameraPosition + forward * moveSpeed;
+					cameraTarget = cameraTarget + forward * moveSpeed;
+				}
+				else if (Keyboard.GetState().IsKeyDown(Keys.A)) { //Left
+					cameraPosition = cameraPosition - right * moveSpeed;
+					cameraTarget = cameraTarget - right * moveSpeed;
+				}
+				else if (Keyboard.GetState().IsKeyDown(Keys.D)) { //Right
+					cameraPosition = cameraPosition + right * moveSpeed;
+					cameraTarget = cameraTarget + right * moveSpeed;
+				}
+			}
 			base.Update( gameTime );
 		}
 
@@ -135,8 +149,8 @@ namespace RunJumpSwingMan {
 			DrawVertices( floorVertices, new BasicEffect[] { floorEffect } );
 			DrawModel( spikeModel, new Vector3( -5.0f, 10.0f, 0.0f ), new Vector3((float)Math.PI / 2, (float)Math.PI / 2, 0.0f ), new Vector3( 2.0f, 2.0f, 2.0f ));
 			DrawModel( spikeModel, new Vector3( 5.0f, 0.0f, -10.0f ), new Vector3((float)Math.PI / 2, -(float)Math.PI / 2, 0.0f), new Vector3( 2.0f, 2.0f, -2.0f ));
-			//SHARON: I rotated the pitch by 180 degrees. Apparently the model is using y as the up vector, but the camera is using z as the up vector
-			//(as per the tutorial we were following earlier I think)
+
+			camera.DrawImage(crosshairImage, new Rectangle(halfWidth - 8, halfHeight - 8, 17, 17), Color.White);
 
 			base.Draw( gameTime );
 		}
@@ -280,14 +294,14 @@ namespace RunJumpSwingMan {
 
 			int moveX = currentMouseState.X - halfWidth;
 			float newLookAngleX = lookAngleX + moveX * rotationSpeed;
-			if (newLookAngleX >= -maxXRotation && newLookAngleX <= maxXRotation) {
+			if (maxXRotation >= (float)(2.0f * Math.PI) || (newLookAngleX >= -maxXRotation && newLookAngleX <= maxXRotation)) {
 				lookAngleX = newLookAngleX;
 				lookAngleX = lookAngleX % (float)(2.0f * Math.PI);
 			}
 
 			int moveY = currentMouseState.Y - halfHeight;
 			float newLookAngleY = lookAngleY + moveY * rotationSpeed;
-			if (newLookAngleY >= -maxYRotation && newLookAngleY <= maxYRotation) {
+			if (maxYRotation >= (float)(2.0f * Math.PI) || (newLookAngleY >= -maxYRotation && newLookAngleY <= maxYRotation)) {
 				lookAngleY = newLookAngleY;
 				lookAngleY = lookAngleY % (float)(2.0f * Math.PI);
 			}

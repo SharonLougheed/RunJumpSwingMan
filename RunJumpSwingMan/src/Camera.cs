@@ -24,9 +24,14 @@ namespace RunJumpSwingMan {
 		private Matrix firstLookAtMatrix = Matrix.Identity;
 		private Matrix currentViewMatrix;
 		private Matrix currentProjectionMatrix;
+		private Viewport the2DViewport, the3DViewport;
+		private SpriteBatch spriteBatch;
 
-		public Camera( GraphicsDeviceManager gfx ) {
+		public Camera( GraphicsDeviceManager gfx, SpriteBatch sb) {
 			graphics = gfx;
+			spriteBatch = sb;
+			the3DViewport = graphics.GraphicsDevice.Viewport;
+			the2DViewport = new Viewport();
 
 			lightDiffuseColor[0] = new Vector3( 1.0f, 1.0f, 1.0f ); // a white light
 			lightDirection[0] = new Vector3( 0.5f, 0.75f, -0.5f );  // some direction of light
@@ -36,29 +41,27 @@ namespace RunJumpSwingMan {
 
 		/*
 		====================
-		Update( List<VertexPositionTexture[]> objects, Vector3 position, Vector3 lookAtVector, Vector3 upVector )
+		Update( List<VertexPositionTexture[]> objects, Vector3 position, Vector3 target, Vector3 upVector )
 
 		  Calculates currentViewMatrix and currentProjectionMatrix with the camera centered at the given position, with given lookAt and up vectors
 		  To be called from the runner class.
 		====================
 		*/
 		public void Update(Vector3 position, Vector3 target, Vector3 upVector, float lookAngleX, float lookAngleY) {
-			//X and Y are flipped
-			Matrix rotationY = Matrix.CreateRotationY(lookAngleX);
-			Matrix rotationX = Matrix.CreateRotationX(lookAngleY);
+			//Get rotation matrices from mouse movement
+			Matrix rotationY = Matrix.CreateRotationY(lookAngleX); //Moving along the 2D X axis rotates around the 3D Y axis
+			Matrix rotationX = Matrix.CreateRotationX(lookAngleY); //Moving along the 2D Y axis rotates around the 3D X axis
 
 			float aspectRatio = graphics.PreferredBackBufferWidth / (float)graphics.PreferredBackBufferHeight;
 			float fov = Microsoft.Xna.Framework.MathHelper.PiOver4;
 			float nearClipPlaneDistance = 1.0f;
 			float farClipPlaneDistance = 200.0f;
 
-			//Console.Out.WriteLine(lookAngleX + " " + lookAngleY + " " + Matrix.CreateLookAt(position, target, upVector).Up);
 
 			if (firstLookAtMatrix.Equals(Matrix.Identity)) {
 				firstLookAtMatrix = Matrix.CreateLookAt(position, target, upVector);
-				Console.Out.WriteLine("set" + firstLookAtMatrix.Up);
 			}
-			//Correct camera flipping issue
+			//Attempt to correct camera flipping issue
 			else {
 				Console.Out.WriteLine(firstLookAtMatrix.Up + " " + Matrix.CreateLookAt(position, target, upVector).Up);
 				if (firstLookAtMatrix.Up != Matrix.CreateLookAt(position, target, upVector).Up) {
@@ -71,6 +74,30 @@ namespace RunJumpSwingMan {
 			currentViewMatrix = Matrix.CreateLookAt(position, target, upVector) * rotationY * rotationX;
 			currentProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearClipPlaneDistance, farClipPlaneDistance);
 		}
+
+
+		/*
+		====================
+		GetForwardVector()
+
+		  Returns a vector in the direction the camera is pointed in.
+		====================
+		*/
+		public Vector3 GetForwardVector() {
+			return (currentViewMatrix * currentProjectionMatrix).Forward;
+		}
+
+		/*
+		====================
+		GetRightVector()
+
+		  Returns a vector to the right of the camera, based on where it's directed.
+		====================
+		*/
+		public Vector3 GetRightVector() {
+			return (currentViewMatrix * currentProjectionMatrix).Right;
+		}
+
 
 
 		/*
@@ -134,6 +161,20 @@ namespace RunJumpSwingMan {
 				}
 			}
 			graphics.GraphicsDevice.DrawUserPrimitives<VertexPositionNormalTexture>(PrimitiveType.TriangleList, verticesObjects, 0, 2);
+		}
+
+		/*
+		====================
+		DrawImage(Texture2D image, Rectangle destinationRectangle)
+
+		  Draws a 2D image at a given rectangle (which includes the location and size to fit it to) with given color
+		  If color is white, the color doesn't change
+		====================
+		*/
+		public void DrawImage(Texture2D image, Rectangle destinationRectangle, Color color) {
+			spriteBatch.Begin();
+			spriteBatch.Draw(image, destinationRectangle, color);
+			spriteBatch.End();
 		}
 	}
 }
