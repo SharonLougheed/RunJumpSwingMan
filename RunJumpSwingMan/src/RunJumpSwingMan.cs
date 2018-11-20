@@ -81,7 +81,7 @@ namespace RunJumpSwingMan {
 
 			checkerboardTexture = Content.Load<Texture2D>( "RunJumpSwingMan/out/DesktopGL/textures/checkerboard" );
 
-			spikeModel = Content.Load<Model>("spike");
+			spikeModel = Content.Load<Model>("RunJumpSwingMan/out/DesktopGL/models/spike");
 
 			crosshairImage = Content.Load<Texture2D>("RunJumpSwingMan/out/DesktopGL/images/crosshair");
 		}
