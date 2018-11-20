@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="src\Framework\Entity.cs" />
     <Compile Include="src\Framework\Geometry.cs" />
+    <Compile Include="src\Framework\Mob.cs" />
     <Compile Include="src\Framework\World.cs" />
     <Compile Include="src\RunJumpSwingMan.cs" />
     <Compile Include="src\Program.cs" />
