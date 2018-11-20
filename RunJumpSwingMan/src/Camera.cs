@@ -29,7 +29,7 @@ namespace RunJumpSwingMan {
 			graphics = gfx;
 
 			lightDiffuseColor[0] = new Vector3( 1.0f, 1.0f, 1.0f ); // a white light
-			lightDirection[0] = new Vector3( 0.5f, -0.5f, 0.75f );  // some direction of light
+			lightDirection[0] = new Vector3( 0.5f, 0.75f, -0.5f );  // some direction of light
 			lightSpecularColor[0] = new Vector3( 1.0f, 1.0f, 1.0f ); // with white highlights
 			directionalLightEnabled[0] = true;
 		}

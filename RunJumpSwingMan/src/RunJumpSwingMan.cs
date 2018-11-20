@@ -19,8 +19,8 @@ namespace RunJumpSwingMan {
 		//For camera
 		private Camera camera;
 		private Vector3 cameraTarget = Vector3.Zero;
-		private Vector3 cameraUpVector = Vector3.UnitZ;
-		private Vector3 cameraPosition = new Vector3(0.0f, 40.0f, 20.0f);
+		private Vector3 cameraUpVector = Vector3.Up;
+		private Vector3 cameraPosition = new Vector3(0.0f, 20.0f, 40.0f);
 		private float lookAngleX = 0.0f, lookAngleY = 0.0f; //In radians
 		private float rotationSpeed = 0.01f;
 		private float maxXRotation = 2.0f * (float)Math.PI, maxYRotation = 2.0f*(float)Math.PI; //In radians (2pi for no limit)
@@ -104,13 +104,13 @@ namespace RunJumpSwingMan {
 			}
 			else if ( Keyboard.GetState().IsKeyDown( Keys.W ) ) {
 				if ( Keyboard.GetState().IsKeyDown( Keys.LeftShift ) || Keyboard.GetState().IsKeyDown( Keys.RightShift ) ) {
-					cameraPosition = new Vector3(cameraPosition.X, cameraPosition.Y - playerForwardWalkSpeed * playerRunMultiplier, cameraPosition.Z);
+					cameraPosition = new Vector3(cameraPosition.X, cameraPosition.Y, cameraPosition.Z - playerForwardWalkSpeed * playerRunMultiplier);
 				}
 				else
-					cameraPosition = new Vector3(cameraPosition.X, cameraPosition.Y - playerForwardWalkSpeed, cameraPosition.Z);
+					cameraPosition = new Vector3(cameraPosition.X, cameraPosition.Y, cameraPosition.Z - playerForwardWalkSpeed);
 			}
 			else if ( Keyboard.GetState().IsKeyDown( Keys.S ) ) {
-				cameraPosition = new Vector3(cameraPosition.X, cameraPosition.Y + playerBackwardWalkSpeed, cameraPosition.Z);
+				cameraPosition = new Vector3(cameraPosition.X, cameraPosition.Y, cameraPosition.Z + playerBackwardWalkSpeed);
 			}
 			else if (Keyboard.GetState().IsKeyDown(Keys.A)) {
 				cameraPosition = new Vector3(cameraPosition.X + playerSidewaysWalkSpeed, cameraPosition.Y, cameraPosition.Z);
@@ -133,8 +133,8 @@ namespace RunJumpSwingMan {
 
 			//Draw stuff here
 			DrawVertices( floorVertices, new BasicEffect[] { floorEffect } );
-			DrawModel( spikeModel, new Vector3( -5.0f, 5.0f, 0.0f ), Vector3.Zero, new Vector3( 2.0f, 2.0f, 2.0f ));
-			DrawModel( spikeModel, new Vector3( 5.0f, 0.0f, 10.0f ), new Vector3( 0.0f, (float)Math.PI, 0.0f), new Vector3( 2.0f, 2.0f, 2.0f ));
+			DrawModel( spikeModel, new Vector3( -5.0f, 10.0f, 0.0f ), new Vector3((float)Math.PI / 2, (float)Math.PI / 2, 0.0f ), new Vector3( 2.0f, 2.0f, 2.0f ));
+			DrawModel( spikeModel, new Vector3( 5.0f, 0.0f, -10.0f ), new Vector3((float)Math.PI / 2, -(float)Math.PI / 2, 0.0f), new Vector3( 2.0f, 2.0f, -2.0f ));
 			//SHARON: I rotated the pitch by 180 degrees. Apparently the model is using y as the up vector, but the camera is using z as the up vector
 			//(as per the tutorial we were following earlier I think)
 
@@ -151,14 +151,14 @@ namespace RunJumpSwingMan {
 		*/
 		private void InitializeGround() {
 			floorVertices = new VertexPositionNormalTexture[ 6 ];
-			floorVertices[ 0 ].Position = new Vector3( -20.0f, -20.0f, 0.0f );
-			floorVertices[ 1 ].Position = new Vector3( -20.0f, 20.0f, 0.0f );
-			floorVertices[ 2 ].Position = new Vector3( 20.0f, -20.0f, 0.0f );
+			floorVertices[ 0 ].Position = new Vector3( -20.0f, 0.0f, 20.0f );
+			floorVertices[ 1 ].Position = new Vector3( -20.0f, 0.0f, -20.0f );
+			floorVertices[ 2 ].Position = new Vector3( 20.0f, 0.0f, 20.0f );
 			floorVertices[ 3 ].Position = floorVertices[ 1 ].Position;
-			floorVertices[ 4 ].Position = new Vector3( 20.0f, 20.0f, 0.0f );
+			floorVertices[ 4 ].Position = new Vector3( 20.0f, 0.0f, -20.0f );
 			floorVertices[ 5 ].Position = floorVertices[ 2 ].Position;
 
-			floorVertices[ 0 ].Normal = new Vector3( 0.0f, 0.0f, 1.0f );
+			floorVertices[ 0 ].Normal = new Vector3( 0.0f, 1.0f, 0.0f );
 			floorVertices[ 1 ].Normal = floorVertices[0].Normal;
 			floorVertices[ 2 ].Normal = floorVertices[0].Normal;
 			floorVertices[ 3 ].Normal = floorVertices[0].Normal;
@@ -204,7 +204,7 @@ namespace RunJumpSwingMan {
 		  Transform vertices and send to camera to draw.
 		  position is coordinates
 		  rotationYawPitchRoll is in radians, X=yaw, Y=pitch, Z=roll
-		  scale is a factor, so 1.0 is unchanged
+		  scale is a factor, so 1.0 is unchanged, 0.5 is half as big, and 2.0 is twice as big
 		====================
 		*/
 		private void DrawVertices(VertexPositionNormalTexture[] vertices, BasicEffect[] basicEffects, Vector3 position, Vector3 rotationYawPitchRoll, Vector3 scale ) {
