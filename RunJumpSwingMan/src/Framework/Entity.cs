@@ -10,7 +10,7 @@ namespace RunJumpSwingMan.src.Framework {
 	/// <summary>
 	/// An object that exists in a World
 	/// </summary>
-	abstract class Entity {
+	public abstract class Entity {
 
 		/// <summary>
 		/// The World that contains this Entity
@@ -20,6 +20,10 @@ namespace RunJumpSwingMan.src.Framework {
 		public Vector3 Position { get; set; }
 		public Vector3 Size { get; set; }
 		public Vector3 Velocity{ get; set; }
+
+		public float Volume { get { return Size.X * Size.Y * Size.Z; } }
+
+		public BoundingBox Bounds { get { return GetBoundingBox(); } }
 
 		//May not be using this, to save time
 		//public Quaternion Rotation { get; set; }
@@ -55,11 +59,11 @@ namespace RunJumpSwingMan.src.Framework {
 		public abstract void Update(GameTime gameTime);
 
 		/// <summary>
-		/// Updates the Entity's position based on velocity and time elapsed
+		/// Retusn the Entity's new position based on velocity and time elapsed BUT DOES NOT UPDATE ITS POSITION
 		/// </summary>
 		/// <param name="time">Amount of time elapsed in</param>
-		public void ApplyVelocity(float time) {
-			Position += Velocity * time;
+		public virtual Vector3 GetDisplacement(GameTime time) {
+			return Velocity * (float)time.ElapsedGameTime.TotalSeconds;
 		}
 
 		/// <summary>
@@ -75,9 +79,70 @@ namespace RunJumpSwingMan.src.Framework {
 		/// Returns a BoundingBox that contains the Entity
 		/// </summary>
 		/// <returns>BoundingBox that encapsulates the Entity</returns>
-		public BoundingBox GetBoundingBox() {
+		private BoundingBox GetBoundingBox() {
 			Vector3 sizeHalf = Size / 2;
 			return new BoundingBox(Position + sizeHalf, Position - sizeHalf);
+		}
+
+		/// <summary>
+		/// Corrects the position and velocity of ent1, assuming ent1 and ent2 are colliding
+		/// </summary>
+		public static void CorrectCollision(Entity ent1, Entity ent2) {
+			//skip this intersection if ghost1 is anchored (shouldn't move)
+			if (ent1.Anchored || !ent1.Intersects(ent2)) return;
+
+			//get the area that they intersect
+			BoundingBox? intersectionArea = Geometry.GetIntersection(ent1.Bounds, ent2.Bounds);
+
+			//time for the position correction
+			if (intersectionArea.HasValue) {
+				Vector3 area = intersectionArea.Value.Max - intersectionArea.Value.Min;
+
+				// position/velocity correction for the X axis
+				if (area.X < area.Y && area.X < area.Z) {
+					if (ent1.Position.X > ent2.Position.X) {
+						ent1.Position = new Vector3(ent2.Position.X + (ent1.Size.X + ent2.Size.X) / 2, ent1.Position.Y, ent1.Position.Z);
+						ent1.Velocity = new Vector3(Math.Max(ent1.Velocity.X, 0), ent1.Velocity.Y, ent1.Velocity.Z);
+					}
+					if (ent1.Position.X < ent2.Position.X) {
+						ent1.Position = new Vector3(ent2.Position.X - (ent1.Size.X + ent2.Size.X) / 2, ent1.Position.Y, ent1.Position.Z);
+						ent1.Velocity = new Vector3(Math.Min(ent1.Velocity.X, 0), ent1.Velocity.Y, ent1.Velocity.Z);
+					}
+				}
+
+				// position/velocity correction for the Y axis
+				if (area.Y < area.X && area.Y < area.Z) {
+					if (ent1.Position.Y > ent2.Position.Y) {
+						ent1.Position = new Vector3(ent1.Position.X, ent2.Position.Y + (ent1.Size.Y + ent2.Size.Y)/2, ent1.Position.Z);
+						ent1.Velocity = new Vector3(ent1.Velocity.X, Math.Max(ent1.Velocity.Y, 0), ent1.Velocity.Z);
+					}
+					if (ent1.Position.Y < ent2.Position.Y) {
+						ent1.Position = new Vector3(ent1.Position.X, ent2.Position.Y - (ent1.Size.Y + ent2.Size.Y) / 2, ent1.Position.Z);
+						ent1.Velocity = new Vector3(ent1.Velocity.X, Math.Min(ent1.Velocity.Y, 0), ent1.Velocity.Z);
+					}
+				}
+
+				// position/velocity correction for the Z axis
+				if (area.Z < area.X && area.Z < area.Y) {
+					if (ent1.Position.Z > ent2.Position.Z) {
+						ent1.Position = new Vector3(ent1.Position.X, ent1.Position.Y, ent2.Position.Z + (ent1.Size.Z + ent2.Size.Z) / 2);
+						ent1.Velocity = new Vector3(ent1.Velocity.X, ent1.Velocity.Y, Math.Max(ent1.Velocity.Z, 0));
+					}
+					if (ent1.Position.Z < ent2.Position.Z) {
+						ent1.Position = new Vector3(ent1.Position.X, ent1.Position.Y, ent2.Position.Z - (ent1.Size.Z + ent2.Size.Z) / 2);
+						ent1.Velocity = new Vector3(ent1.Velocity.X, ent1.Velocity.Y, Math.Min(ent1.Velocity.Z, 0));
+					}
+				}
+			}
+
+		}
+
+		/// <summary>
+		/// Fires off the event for colliding with another entity
+		/// </summary>
+		/// <param name="other"></param>
+		internal void TriggerCollides(Entity other) {
+			Collides(other);
 		}
 
 		/// <summary>

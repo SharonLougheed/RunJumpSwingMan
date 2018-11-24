@@ -23,6 +23,22 @@ namespace RunJumpSwingMan.src.Framework {
 			return planeOrigin + projDif;
 		}
 
+		/// <summary>
+		/// Returns the area of intersection between two BoundingBoxes. If they don't intersect then it returns null
+		/// </summary>
+		/// <param name="b1"></param>
+		/// <param name="b2"></param>
+		/// <returns></returns>
+		public static BoundingBox? GetIntersection(BoundingBox b1, BoundingBox b2) {
+			Vector3 bMax = new Vector3(Math.Min(b1.Max.X, b2.Max.X), Math.Min(b1.Max.Y, b2.Max.Y), Math.Min(b1.Max.Z, b2.Max.Z));
+			Vector3 bMin = new Vector3(Math.Max(b1.Min.X, b2.Min.X), Math.Max(b1.Min.Y, b2.Min.Y), Math.Max(b1.Min.Z, b2.Min.Z));
 
+			//difference between the two vectors. bMax should be greater than bMin in all dimensions or else they're not intersecting
+			Vector3 dif = bMax - bMin;
+
+			if (dif.X >= 0 && dif.Y >= 0 && dif.Z >= 0)
+				return new BoundingBox(bMax, bMin);
+			else return null;
+		}
 	}
 }

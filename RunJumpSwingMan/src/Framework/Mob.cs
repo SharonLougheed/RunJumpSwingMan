@@ -44,6 +44,14 @@ namespace RunJumpSwingMan.src.Framework {
 		}
 
 		/// <summary>
+		/// Overrides the Entity ApplyVelocity method to also factor in the movement of the Mob
+		/// </summary>
+		/// <param name="time">The current time of the game</param>
+		public override Vector3 GetDisplacement(GameTime time) {
+			return (Velocity + Movement) * (float)time.ElapsedGameTime.TotalSeconds;
+		}
+
+		/// <summary>
 		/// Delegate for handling the death of a Mob
 		/// </summary>
 		public delegate void DeathHandler();

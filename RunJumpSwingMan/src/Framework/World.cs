@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework;
 
 namespace RunJumpSwingMan.src.Framework {
 
-	class World {
+	public class World {
 
 		private List<Entity> _entities;
 		public ReadOnlyCollection<Entity> Entities { get { return new ReadOnlyCollection<Entity>(_entities); } }
@@ -36,10 +36,44 @@ namespace RunJumpSwingMan.src.Framework {
 		/// </summary>
 		/// <param name="gameTime"></param>
 		public void Update(GameTime gameTime) {
+
 			foreach (Entity ent in _entities) {
+				ent.Position += ent.GetDisplacement(gameTime);
 				ent.Update(gameTime);
 			}
+
+			//list of entity collision relations
+			//for a collision relation I'm gonna use an array of ghosts of length 2
+			//i don't feel like making a class for this>
+			LinkedList<Entity[]> intersections = new LinkedList<Entity[]>();
+
+			//collision checking. Yes, I know it's O(n^2)
+			foreach (Entity ent1 in _entities) {
+				foreach(Entity ent2 in _entities) {
+					if (ent1.Intersects(ent2))
+						//add the relation if the ghosts' bounds intersect
+						intersections.AddLast(new Entity[] { ent1, ent2 });
+				}
+			}
+
+			//iterate through the intersections
+			foreach (Entity[] sectRel in intersections) {
+				Entity ent1 = sectRel[0];
+				Entity ent2 = sectRel[1];
+
+				//skip this intersection if ghost1 is anchored (shouldn't move)
+				if (ent1.Anchored) continue;
+
+				//corrects the entity's position and velocity
+				Entity.CorrectCollision(ent1, ent2);
+
+				//have the entity fire off its collision event
+				ent1.TriggerCollides(ent2);
+			}
+
+			//perform any add/remove entity maintenance
 			ProcessEntityQueues();
+
 		}
 
 		/// <summary>
@@ -76,5 +110,8 @@ namespace RunJumpSwingMan.src.Framework {
 				_removeList.AddLast(ent);
 		}
 
+		
+
 	}
+
 }
