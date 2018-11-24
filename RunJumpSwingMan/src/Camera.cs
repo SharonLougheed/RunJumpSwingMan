@@ -75,6 +75,33 @@ namespace RunJumpSwingMan {
 			currentProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearClipPlaneDistance, farClipPlaneDistance);
 		}
 
+		public void Update(Vector3 position, Vector3 target, Vector3 upVector) {
+
+			float aspectRatio = graphics.PreferredBackBufferWidth / (float)graphics.PreferredBackBufferHeight;
+			float fov = Microsoft.Xna.Framework.MathHelper.PiOver4;
+			float nearClipPlaneDistance = 1.0f;
+			float farClipPlaneDistance = 200.0f;
+
+			//firstLookAtMatrix = Matrix.CreateLookAt(position, target, upVector);
+			/*
+			if (firstLookAtMatrix.Equals(Matrix.Identity)) {
+				firstLookAtMatrix = Matrix.CreateLookAt(position, target, upVector);
+			}
+			//Attempt to correct camera flipping issue
+			else {
+				Console.Out.WriteLine(firstLookAtMatrix.Up + " " + Matrix.CreateLookAt(position, target, upVector).Up);
+				if (firstLookAtMatrix.Up != Matrix.CreateLookAt(position, target, upVector).Up) {
+					upVector = Matrix.Invert(firstLookAtMatrix).Up;
+				}
+			}
+			*/
+			//Uhh this isn't working
+			//https://gamedev.stackexchange.com/questions/45280/making-a-camera-look-at-a-target-vector
+
+			currentViewMatrix = Matrix.CreateLookAt(position, target, upVector);
+			currentProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearClipPlaneDistance, farClipPlaneDistance);
+		}
+
 
 		/*
 		====================

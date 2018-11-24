@@ -81,7 +81,7 @@ namespace RunJumpSwingMan.src.Framework {
 		/// <returns>BoundingBox that encapsulates the Entity</returns>
 		private BoundingBox GetBoundingBox() {
 			Vector3 sizeHalf = Size / 2;
-			return new BoundingBox(Position + sizeHalf, Position - sizeHalf);
+			return new BoundingBox(Position - sizeHalf, Position + sizeHalf);
 		}
 
 		/// <summary>
@@ -97,7 +97,7 @@ namespace RunJumpSwingMan.src.Framework {
 			//time for the position correction
 			if (intersectionArea.HasValue) {
 				Vector3 area = intersectionArea.Value.Max - intersectionArea.Value.Min;
-
+				Console.WriteLine(area);
 				// position/velocity correction for the X axis
 				if (area.X < area.Y && area.X < area.Z) {
 					if (ent1.Position.X > ent2.Position.X) {
@@ -141,8 +141,10 @@ namespace RunJumpSwingMan.src.Framework {
 		/// Fires off the event for colliding with another entity
 		/// </summary>
 		/// <param name="other"></param>
-		internal void TriggerCollides(Entity other) {
-			Collides(other);
+		internal void OnCollide(Entity other) {
+			if (Collide != null) {
+				Collide(other);
+			}
 		}
 
 		/// <summary>
@@ -153,6 +155,6 @@ namespace RunJumpSwingMan.src.Framework {
 		/// <summary>
 		/// Event that is called whenever an Entity collides with another
 		/// </summary>
-		public event CollisionHandler Collides;
+		public event CollisionHandler Collide;
     }
 }

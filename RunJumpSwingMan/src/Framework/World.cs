@@ -38,8 +38,8 @@ namespace RunJumpSwingMan.src.Framework {
 		public void Update(GameTime gameTime) {
 
 			foreach (Entity ent in _entities) {
-				ent.Position += ent.GetDisplacement(gameTime);
 				ent.Update(gameTime);
+				ent.Position += ent.GetDisplacement(gameTime);
 			}
 
 			//list of entity collision relations
@@ -50,9 +50,11 @@ namespace RunJumpSwingMan.src.Framework {
 			//collision checking. Yes, I know it's O(n^2)
 			foreach (Entity ent1 in _entities) {
 				foreach(Entity ent2 in _entities) {
-					if (ent1.Intersects(ent2))
+					if (ent1 == ent2) continue;
+					if (ent1.Intersects(ent2)) {
 						//add the relation if the ghosts' bounds intersect
 						intersections.AddLast(new Entity[] { ent1, ent2 });
+					}
 				}
 			}
 
@@ -68,7 +70,7 @@ namespace RunJumpSwingMan.src.Framework {
 				Entity.CorrectCollision(ent1, ent2);
 
 				//have the entity fire off its collision event
-				ent1.TriggerCollides(ent2);
+				ent1.OnCollide(ent2);
 			}
 
 			//perform any add/remove entity maintenance
@@ -85,11 +87,13 @@ namespace RunJumpSwingMan.src.Framework {
 				_entities.Add(ent);
 				ent.Parent = this;
 			}
+			_addList.Clear();
 			//removing from the world
 			foreach (Entity ent in _removeList) {
 				_entities.Remove(ent);
 				ent.Parent = null;
 			}
+			_removeList.Clear();
 		}
 
 		/// <summary>

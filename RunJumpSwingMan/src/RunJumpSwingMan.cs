@@ -2,9 +2,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+
+using RunJumpSwingMan.src.Framework;
+using RunJumpSwingMan.src.Gameplay;
 
 namespace RunJumpSwingMan {
 
@@ -39,6 +43,9 @@ namespace RunJumpSwingMan {
 		private VertexPositionNormalTexture[] floorVertices;
 		private BasicEffect floorEffect;
 
+		private World worldo;
+		private Player playero;
+
 		public RunJumpSwingMan() {
 			graphics = new GraphicsDeviceManager( this );
 
@@ -54,6 +61,22 @@ namespace RunJumpSwingMan {
 		protected override void Initialize() {
 			base.Initialize(); //This needs to be done first to load content
 
+
+			Input.MouseLocked = true;
+			Input.Initialize(graphics);
+			worldo = new World();
+			playero = new Player();
+			playero.Position = new Vector3(0, 2, 0);
+			worldo.AddEntity(playero);
+			/*
+			playero.Velocity = new Vector3(0, -1, 0);
+			Block blocko = new Block();
+			blocko.Position = new Vector3(0, -5, 0);
+			Console.WriteLine(playero.Bounds);
+			Console.WriteLine(blocko.Bounds);
+			worldo.AddEntity(blocko);
+			*/
+
 			//Initialize camera and objects list
 			camera = new Camera(graphics, spriteBatch);
 
@@ -65,8 +88,8 @@ namespace RunJumpSwingMan {
 			halfHeight = graphics.GraphicsDevice.Viewport.Height / 2;
 
 			//Center mouse
-			Mouse.SetPosition(halfWidth, halfHeight);
-			Mouse.SetCursor(MouseCursor.Crosshair);
+			//Mouse.SetPosition(halfWidth, halfHeight);
+			//Mouse.SetCursor(MouseCursor.Crosshair);
 			this.IsMouseVisible = false;
 		}
 
@@ -102,37 +125,42 @@ namespace RunJumpSwingMan {
 		/// </summary>
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Update( GameTime gameTime ) {
+			Input.Update();
+			worldo.Update(gameTime);
+			camera.Update(playero.Position, playero.Position + (playero.LookVector), Vector3.Up);
+
 			if ( Keyboard.GetState().IsKeyDown( Keys.Escape ) ) {
 				Exit();
 			}
-			else {
-				float moveSpeed = playerForwardWalkSpeed;
-				//Running?
-				if ( Keyboard.GetState().IsKeyDown( Keys.LeftShift ) || Keyboard.GetState().IsKeyDown( Keys.RightShift ) ) {
-					moveSpeed = playerForwardWalkSpeed * playerRunMultiplier;
-				}
-
-				Vector3 forward = Vector3.Normalize(camera.GetForwardVector());
-
-				Vector3 right = Vector3.Normalize(camera.GetRightVector());
-
-				if ( Keyboard.GetState().IsKeyDown( Keys.W ) ) { //Front
-					cameraPosition = cameraPosition - forward * moveSpeed;
-					cameraTarget = cameraTarget - forward * moveSpeed;
-				}
-				else if ( Keyboard.GetState().IsKeyDown( Keys.S ) ) { //Back
-					cameraPosition = cameraPosition + forward * moveSpeed;
-					cameraTarget = cameraTarget + forward * moveSpeed;
-				}
-				else if (Keyboard.GetState().IsKeyDown(Keys.A)) { //Left
-					cameraPosition = cameraPosition - right * moveSpeed;
-					cameraTarget = cameraTarget - right * moveSpeed;
-				}
-				else if (Keyboard.GetState().IsKeyDown(Keys.D)) { //Right
-					cameraPosition = cameraPosition + right * moveSpeed;
-					cameraTarget = cameraTarget + right * moveSpeed;
-				}
+			/*
+			float moveSpeed = playerForwardWalkSpeed;
+			//Running?
+			if ( Keyboard.GetState().IsKeyDown( Keys.LeftShift ) || Keyboard.GetState().IsKeyDown( Keys.RightShift ) ) {
+				moveSpeed = playerForwardWalkSpeed * playerRunMultiplier;
 			}
+			
+			Vector3 forward = Vector3.Normalize(camera.GetForwardVector());
+
+			Vector3 right = Vector3.Normalize(camera.GetRightVector());
+
+			if ( Keyboard.GetState().IsKeyDown( Keys.W ) ) { //Front
+				cameraPosition = cameraPosition - forward * moveSpeed;
+				cameraTarget = cameraTarget - forward * moveSpeed;
+			}
+			else if ( Keyboard.GetState().IsKeyDown( Keys.S ) ) { //Back
+				cameraPosition = cameraPosition + forward * moveSpeed;
+				cameraTarget = cameraTarget + forward * moveSpeed;
+			}
+			else if (Keyboard.GetState().IsKeyDown(Keys.A)) { //Left
+				cameraPosition = cameraPosition - right * moveSpeed;
+				cameraTarget = cameraTarget - right * moveSpeed;
+			}
+			else if (Keyboard.GetState().IsKeyDown(Keys.D)) { //Right
+				cameraPosition = cameraPosition + right * moveSpeed;
+				cameraTarget = cameraTarget + right * moveSpeed;
+			}
+			*/
+
 			base.Update( gameTime );
 		}
 
@@ -143,7 +171,7 @@ namespace RunJumpSwingMan {
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw(GameTime gameTime) {
 			GraphicsDevice.Clear(Color.DarkSlateGray);
-			UpdateCamera(); //This needs to be done before drawing stuff
+			//UpdateCamera(); //This needs to be done before drawing stuff
 
 			//Draw stuff here
 			DrawVertices( floorVertices, new BasicEffect[] { floorEffect } );
@@ -164,6 +192,33 @@ namespace RunJumpSwingMan {
 		====================
 		*/
 		private void InitializeGround() {
+			floorVertices = new VertexPositionNormalTexture[6];
+			floorVertices[0].Position = new Vector3(-100.0f, 0f, 100.0f);
+			floorVertices[1].Position = new Vector3(-100.0f, 0f, -100.0f);
+			floorVertices[2].Position = new Vector3(100.0f, 0f, 100.0f);
+			floorVertices[3].Position = floorVertices[1].Position;
+			floorVertices[4].Position = new Vector3(100.0f, 0f, -100.0f);
+			floorVertices[5].Position = floorVertices[2].Position;
+
+			floorVertices[0].Normal = new Vector3(0.0f, 1.0f, 0.0f);
+			floorVertices[1].Normal = floorVertices[0].Normal;
+			floorVertices[2].Normal = floorVertices[0].Normal;
+			floorVertices[3].Normal = floorVertices[0].Normal;
+			floorVertices[4].Normal = floorVertices[0].Normal;
+			floorVertices[5].Normal = floorVertices[0].Normal;
+
+			floorVertices[0].TextureCoordinate = new Vector2(0.0f, 0.0f);
+			floorVertices[1].TextureCoordinate = new Vector2(0.0f, 1.0f);
+			floorVertices[2].TextureCoordinate = new Vector2(1.0f, 0.0f);
+			floorVertices[3].TextureCoordinate = floorVertices[1].TextureCoordinate;
+			floorVertices[4].TextureCoordinate = new Vector2(1.0f, 1.0f);
+			floorVertices[5].TextureCoordinate = floorVertices[2].TextureCoordinate;
+
+			floorEffect = new BasicEffect(graphics.GraphicsDevice);
+			floorEffect.TextureEnabled = true;
+			floorEffect.Texture = checkerboardTexture;
+
+			/*
 			floorVertices = new VertexPositionNormalTexture[ 6 ];
 			floorVertices[ 0 ].Position = new Vector3( -20.0f, 0.0f, 20.0f );
 			floorVertices[ 1 ].Position = new Vector3( -20.0f, 0.0f, -20.0f );
@@ -189,6 +244,7 @@ namespace RunJumpSwingMan {
 			floorEffect = new BasicEffect(graphics.GraphicsDevice);
 			floorEffect.TextureEnabled = true;
 			floorEffect.Texture = checkerboardTexture;
+			*/
 		}
 
 
@@ -309,6 +365,8 @@ namespace RunJumpSwingMan {
 			Mouse.SetPosition(halfWidth, halfHeight);
 
 			camera.Update(cameraPosition, cameraTarget, cameraUpVector, lookAngleX, lookAngleY);
+			//Console.WriteLine(cameraPosition + " " + cameraTarget);
+			//camera.Update(cameraPosition, cameraTarget, Vector3.Up);
 		}
 	}
 }

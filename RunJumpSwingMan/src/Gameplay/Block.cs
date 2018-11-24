@@ -13,7 +13,7 @@ namespace RunJumpSwingMan.src.Gameplay {
 
 		public Block() {
 			Anchored = true;
-
+			Size = new Vector3(20, 20, 20);
 		}
 
 		public override void Update(GameTime time) {

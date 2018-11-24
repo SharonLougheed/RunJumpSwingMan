@@ -25,27 +25,26 @@ namespace RunJumpSwingMan.src.Gameplay {
 			get { return _lookAngle; }
 			//automatically recalculate the lookVector
 			set { _lookAngle = value;
-				Matrix rotateHoriz = Matrix.CreateRotationY(_lookAngle.X);
-				Matrix rotateVert = Matrix.CreateRotationX(_lookAngle.Y);
-				_lookVector = Vector3.Transform(Vector3.Forward, rotateHoriz * rotateVert);
+				Matrix rotateHoriz = Matrix.CreateRotationY(MathHelper.ToRadians(_lookAngle.X));
+				Matrix rotateVert = Matrix.CreateRotationX(MathHelper.ToRadians(_lookAngle.Y));
+				_lookVector = Vector3.Transform(Vector3.Forward, rotateVert * rotateHoriz);
 			}
 		}
 		public Vector3 LookVector {
 			get { return _lookVector; }
-			set { _lookVector = value; }
 		}
 
-		public Player() {
+		public Player() : base() {
 
 			//GravityScale = 0;
-
+			Size = new Vector3(2, 4, 2);
 			Controller = new PlayerController(this);
 			MaxMoveSpeed = 10;
 			LookAngle = new Vector2();
 		}
 
 		public override void Update(GameTime time) {
-
+			//Console.WriteLine(_lookAngle + " " + _lookVector);
 			Controller.Update(time);
 		}
 

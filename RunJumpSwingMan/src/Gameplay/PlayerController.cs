@@ -20,14 +20,13 @@ namespace RunJumpSwingMan.src.Gameplay {
 
 		public PlayerController(Player sub) {
 			subject = sub;
-			MouseSensitivity = 2;
+			MouseSensitivity = 10f;
 		}
 
 		public void Update(GameTime time) {
 			TurnPlayer(time);
 			MovePlayer(time);
-
-
+			
 		}
 
 		/// <summary>
@@ -39,12 +38,13 @@ namespace RunJumpSwingMan.src.Gameplay {
 
 			//get keyboard movement input
 			Vector2 wasdInput = Input.GetWASDVector(kstate);
-			//determine the local direction to move in
-			Vector2 lateralMovement = wasdInput * subject.MaxMoveSpeed * (float)time.ElapsedGameTime.TotalSeconds;
-			Matrix rotation = Matrix.CreateRotationY(MathHelper.ToRadians(subject.LookAngle.X));
 
+			//determine the local direction to move in
+			Vector2 lateralMovement = wasdInput * subject.MaxMoveSpeed;
+			Vector3 move3D = new Vector3(lateralMovement.X, 0, -lateralMovement.Y);
 			//set the movement vector to the local movement vector rotated by the horizontal lookAngle
-			subject.Movement = Vector3.Transform(new Vector3(lateralMovement.X, 0, -lateralMovement.Y), rotation);
+			Vector3 moveTransformed = Vector3.Transform(move3D, Matrix.CreateRotationY(MathHelper.ToRadians(subject.LookAngle.X)));
+			subject.Movement = moveTransformed;
 		}
 
 		/// <summary>
@@ -52,8 +52,10 @@ namespace RunJumpSwingMan.src.Gameplay {
 		/// </summary>
 		/// <param name="time"></param>
 		public void TurnPlayer(GameTime time) {
-			subject.LookAngle += Input.MouseDelta * (float)time.ElapsedGameTime.TotalSeconds;
-
+			//incrementing the look angle by mouse movement, with an inverted y
+			Vector2 lookDisplace = Input.MouseDelta * new Vector2(-1, -1) * (float)time.ElapsedGameTime.TotalSeconds * MouseSensitivity;
+			Vector2 sum = subject.LookAngle + lookDisplace;
+			subject.LookAngle = new Vector2(sum.X, MathHelper.Clamp(sum.Y, -90f, 90f));
 		}
 
 	}

@@ -19,7 +19,6 @@ namespace RunJumpSwingMan.src.Framework {
 	public static class Input {
 
 		private static GraphicsDeviceManager _graphicsMan;
-		private static Vector2 _mouseDelta;
 
 		public static MouseState CurrentMouse { get; private set; }
 		public static MouseState OldMouse { get; private set; }
@@ -40,7 +39,7 @@ namespace RunJumpSwingMan.src.Framework {
 			CurrentMouse = Mouse.GetState();
 
 			//calculating mouseDelta
-			_mouseDelta = CalculateMouseDelta();
+			MouseDelta = CalculateMouseDelta();
 			//if mouse is locked then reset position after calculating the delta
 			if (MouseLocked) {
 				Viewport port = _graphicsMan.GraphicsDevice.Viewport;
@@ -49,9 +48,11 @@ namespace RunJumpSwingMan.src.Framework {
 
 		}
 
-		//calculates the amound of mouse movement
+		//calculates the amount of mouse movement since the last update call
 		private static Vector2 CalculateMouseDelta() {
 			Vector2 toReturn = new Vector2();
+
+			//if it's mouselocked then just take the distance from the center of the screen
 			if (MouseLocked) {
 				Viewport port = _graphicsMan.GraphicsDevice.Viewport;
 				Vector2 screenMid = new Vector2(port.Width, port.Height) / 2;
@@ -59,7 +60,6 @@ namespace RunJumpSwingMan.src.Framework {
 			} else {
 				toReturn = new Vector2(CurrentMouse.X, CurrentMouse.Y) - new Vector2(OldMouse.X, OldMouse.Y);
 			}
-
 			return toReturn;
 		}
 
@@ -95,7 +95,9 @@ namespace RunJumpSwingMan.src.Framework {
 		/// <returns></returns>
 		public static Vector2 GetWASDVector(KeyboardState kState) {
 			Vector2 toReturn = new Vector2(GetAxis("Horizontal", kState), GetAxis("Vertical", kState));
-			toReturn.Normalize();
+			if (toReturn != Vector2.Zero) {
+				toReturn.Normalize();
+			}
 			return toReturn;
 		}
 
