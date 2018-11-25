@@ -113,16 +113,16 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="app.manifest" />
-    <Content Include="Content\RunJumpSwingMan\images\crosshair.png" />
+    <Content Include="Content\RunJumpSwingMan\textures\crosshair.png" />
     <Content Include="Content\RunJumpSwingMan\out\DesktopGL\textures\checkerboard.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\RunJumpSwingMan\models\spike.fbx" />
-    <Content Include="Content\RunJumpSwingMan\out\DesktopGL\images\crosshair.xnb">
+    <Content Include="Content\RunJumpSwingMan\out\DesktopGL\models\spike.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\RunJumpSwingMan\out\DesktopGL\models\spike.xnb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Content Include="Content\RunJumpSwingMan\out\DesktopGL\textures\crosshair.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>

@@ -1,12 +1,7 @@
-﻿using System.IO;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-
 using RunJumpSwingMan.src.Framework;
 using RunJumpSwingMan.src.Gameplay;
 
@@ -24,21 +19,21 @@ namespace RunJumpSwingMan {
 		private Camera camera;
 		private Vector3 cameraTarget = Vector3.Zero;
 		private Vector3 cameraUpVector = Vector3.Up;
-		private Vector3 cameraPosition = new Vector3(0.0f, 20.0f, 40.0f);
+		private Vector3 cameraPosition = new Vector3( 0.0f, 20.0f, 40.0f );
 		private float lookAngleX = 0.0f, lookAngleY = 0.0f; //In radians
-		private float rotationSpeed = 0.01f;
-		private float maxXRotation = 2.0f * (float)Math.PI, maxYRotation = 2.0f*(float)Math.PI; //In radians (2pi for no limit)
-		private int halfWidth, halfHeight;
-		private float playerForwardWalkSpeed = 1.0f;
-		private float playerBackwardWalkSpeed = 0.75f;
-		private float playerSidewaysWalkSpeed = 1.0f;
-		private float playerRunMultiplier = 2.0f;
+		private readonly float rotationSpeed = 0.01f;
+		private readonly float maxXRotation = 2.0f * ( float )Math.PI; // radians
+		private readonly float maxYRotation = 2.0f * ( float )Math.PI; //In radians (2pi for no limit)
+		private readonly float playerForwardWalkSpeed = 1.0f;
+		private readonly float playerBackwardWalkSpeed = 0.75f;
+		private readonly float playerSidewaysWalkSpeed = 1.0f;
+		private readonly float playerRunMultiplier = 2.0f;
 
 		//For floor
 		private Texture2D checkerboardTexture;
 
 		//Objects to render
-		private Texture2D crosshairImage;
+		private Texture2D crosshairTexture;
 		private Model spikeModel;
 		private VertexPositionNormalTexture[] floorVertices;
 		private BasicEffect floorEffect;
@@ -49,7 +44,7 @@ namespace RunJumpSwingMan {
 		public RunJumpSwingMan() {
 			graphics = new GraphicsDeviceManager( this );
 
-			Content.RootDirectory = "Content";
+			Content.RootDirectory = "Content/RunJumpSwingMan/out/DesktopGL";
 		}
 
 		/// <summary>
@@ -59,15 +54,13 @@ namespace RunJumpSwingMan {
 		/// and initialize them as well.
 		/// </summary>
 		protected override void Initialize() {
-			base.Initialize(); //This needs to be done first to load content
-
-
 			Input.MouseLocked = true;
-			Input.Initialize(graphics);
+			Input.Initialize( graphics );
 			worldo = new World();
-			playero = new Player();
-			playero.Position = new Vector3(0, 2, 0);
-			worldo.AddEntity(playero);
+			playero = new Player {
+				Position = new Vector3( 0.0f, 2.0f, 0.0f )
+			};
+			worldo.AddEntity( playero );
 			/*
 			playero.Velocity = new Vector3(0, -1, 0);
 			Block blocko = new Block();
@@ -77,23 +70,13 @@ namespace RunJumpSwingMan {
 			worldo.AddEntity(blocko);
 			*/
 
-			//Initialize camera and objects list
-			camera = new Camera(graphics, spriteBatch);
-
-			//Initialize ground and spike models
 			InitializeGround();
-			InitializeSpike();
+			
+			IsMouseVisible = false;
 
-			halfWidth = graphics.GraphicsDevice.Viewport.Width / 2;
-			halfHeight = graphics.GraphicsDevice.Viewport.Height / 2;
-
-			//Center mouse
-			//Mouse.SetPosition(halfWidth, halfHeight);
-			//Mouse.SetCursor(MouseCursor.Crosshair);
-			this.IsMouseVisible = false;
+			base.Initialize();
 		}
-
-
+		
 		/// <summary>
 		/// LoadContent will be called once per game and is the place to load
 		/// all of your content.
@@ -102,14 +85,15 @@ namespace RunJumpSwingMan {
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch( GraphicsDevice );
 
-			checkerboardTexture = Content.Load<Texture2D>( "RunJumpSwingMan/out/DesktopGL/textures/checkerboard" );
+			camera = new Camera( graphics, spriteBatch );
 
-			spikeModel = Content.Load<Model>("RunJumpSwingMan/out/DesktopGL/models/spike");
+			checkerboardTexture = Content.Load<Texture2D>( "textures/checkerboard" );
+			crosshairTexture = Content.Load<Texture2D>( "textures/crosshair" );
+			spikeModel = Content.Load<Model>( "models/spike" );
 
-			crosshairImage = Content.Load<Texture2D>("RunJumpSwingMan/out/DesktopGL/images/crosshair");
+			InitContentOfSpike();
 		}
-
-
+		
 		/// <summary>
 		/// UnloadContent will be called once per game and is the place to unload
 		/// game-specific content.
@@ -117,8 +101,7 @@ namespace RunJumpSwingMan {
 		protected override void UnloadContent() {
 			// TODO: Unload any non ContentManager content here
 		}
-
-
+		
 		/// <summary>
 		/// Allows the game to run logic such as updating the world,
 		/// checking for collisions, gathering input, and playing audio.
@@ -126,8 +109,8 @@ namespace RunJumpSwingMan {
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Update( GameTime gameTime ) {
 			Input.Update();
-			worldo.Update(gameTime);
-			camera.Update(playero.Position, playero.Position + (playero.LookVector), Vector3.Up);
+			worldo.Update( gameTime );
+			camera.Update( playero.Position, playero.Position + playero.LookVector, Vector3.UnitY );
 
 			if ( Keyboard.GetState().IsKeyDown( Keys.Escape ) ) {
 				Exit();
@@ -163,27 +146,28 @@ namespace RunJumpSwingMan {
 
 			base.Update( gameTime );
 		}
-
-
+		
 		/// <summary>
 		/// This is called when the game should draw itself.
 		/// </summary>
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
-		protected override void Draw(GameTime gameTime) {
-			GraphicsDevice.Clear(Color.DarkSlateGray);
+		protected override void Draw( GameTime gameTime ) {
+			GraphicsDevice.Clear( Color.DarkSlateGray );
 			//UpdateCamera(); //This needs to be done before drawing stuff
 
 			//Draw stuff here
 			DrawVertices( floorVertices, new BasicEffect[] { floorEffect } );
-			DrawModel( spikeModel, new Vector3( -5.0f, 10.0f, 0.0f ), new Vector3((float)Math.PI / 2, (float)Math.PI / 2, 0.0f ), new Vector3( 2.0f, 2.0f, 2.0f ));
-			DrawModel( spikeModel, new Vector3( 5.0f, 0.0f, -10.0f ), new Vector3((float)Math.PI / 2, -(float)Math.PI / 2, 0.0f), new Vector3( 2.0f, 2.0f, -2.0f ));
+			DrawModel( spikeModel, new Vector3( -5.0f, 10.0f, 0.0f ), new Vector3( ( float )Math.PI / 2, ( float )Math.PI / 2, 0.0f ), new Vector3( 2.0f, 2.0f, 2.0f ) );
+			DrawModel( spikeModel, new Vector3( 5.0f, 0.0f, -10.0f ), new Vector3( ( float )Math.PI / 2, -( float )Math.PI / 2, 0.0f ), new Vector3( 2.0f, 2.0f, -2.0f ) );
 
-			camera.DrawImage(crosshairImage, new Rectangle(halfWidth - 8, halfHeight - 8, 17, 17), Color.White);
+			int halfWidth = graphics.GraphicsDevice.Viewport.Width / 2;
+			int halfHeight = graphics.GraphicsDevice.Viewport.Height / 2;
+
+			camera.DrawImage( crosshairTexture, new Rectangle( halfWidth - 8, halfHeight - 8, 17, 17 ), Color.White );
 
 			base.Draw( gameTime );
 		}
-
-
+		
 		/*
 		====================
 		InitializeGround()
@@ -192,31 +176,32 @@ namespace RunJumpSwingMan {
 		====================
 		*/
 		private void InitializeGround() {
-			floorVertices = new VertexPositionNormalTexture[6];
-			floorVertices[0].Position = new Vector3(-100.0f, 0f, 100.0f);
-			floorVertices[1].Position = new Vector3(-100.0f, 0f, -100.0f);
-			floorVertices[2].Position = new Vector3(100.0f, 0f, 100.0f);
-			floorVertices[3].Position = floorVertices[1].Position;
-			floorVertices[4].Position = new Vector3(100.0f, 0f, -100.0f);
-			floorVertices[5].Position = floorVertices[2].Position;
+			floorVertices = new VertexPositionNormalTexture[ 6 ];
+			floorVertices[ 0 ].Position = new Vector3( -100.0f, 0f, 100.0f );
+			floorVertices[ 1 ].Position = new Vector3( -100.0f, 0f, -100.0f );
+			floorVertices[ 2 ].Position = new Vector3( 100.0f, 0f, 100.0f );
+			floorVertices[ 3 ].Position = floorVertices[ 1 ].Position;
+			floorVertices[ 4 ].Position = new Vector3( 100.0f, 0f, -100.0f );
+			floorVertices[ 5 ].Position = floorVertices[ 2 ].Position;
 
-			floorVertices[0].Normal = new Vector3(0.0f, 1.0f, 0.0f);
-			floorVertices[1].Normal = floorVertices[0].Normal;
-			floorVertices[2].Normal = floorVertices[0].Normal;
-			floorVertices[3].Normal = floorVertices[0].Normal;
-			floorVertices[4].Normal = floorVertices[0].Normal;
-			floorVertices[5].Normal = floorVertices[0].Normal;
+			floorVertices[ 0 ].Normal = new Vector3( 0.0f, 1.0f, 0.0f );
+			floorVertices[ 1 ].Normal = floorVertices[ 0 ].Normal;
+			floorVertices[ 2 ].Normal = floorVertices[ 0 ].Normal;
+			floorVertices[ 3 ].Normal = floorVertices[ 0 ].Normal;
+			floorVertices[ 4 ].Normal = floorVertices[ 0 ].Normal;
+			floorVertices[ 5 ].Normal = floorVertices[ 0 ].Normal;
 
-			floorVertices[0].TextureCoordinate = new Vector2(0.0f, 0.0f);
-			floorVertices[1].TextureCoordinate = new Vector2(0.0f, 1.0f);
-			floorVertices[2].TextureCoordinate = new Vector2(1.0f, 0.0f);
-			floorVertices[3].TextureCoordinate = floorVertices[1].TextureCoordinate;
-			floorVertices[4].TextureCoordinate = new Vector2(1.0f, 1.0f);
-			floorVertices[5].TextureCoordinate = floorVertices[2].TextureCoordinate;
+			floorVertices[ 0 ].TextureCoordinate = new Vector2( 0.0f, 0.0f );
+			floorVertices[ 1 ].TextureCoordinate = new Vector2( 0.0f, 1.0f );
+			floorVertices[ 2 ].TextureCoordinate = new Vector2( 1.0f, 0.0f );
+			floorVertices[ 3 ].TextureCoordinate = floorVertices[ 1 ].TextureCoordinate;
+			floorVertices[ 4 ].TextureCoordinate = new Vector2( 1.0f, 1.0f );
+			floorVertices[ 5 ].TextureCoordinate = floorVertices[ 2 ].TextureCoordinate;
 
-			floorEffect = new BasicEffect(graphics.GraphicsDevice);
-			floorEffect.TextureEnabled = true;
-			floorEffect.Texture = checkerboardTexture;
+			floorEffect = new BasicEffect( graphics.GraphicsDevice ) {
+				TextureEnabled = true,
+				Texture = checkerboardTexture
+			};
 
 			/*
 			floorVertices = new VertexPositionNormalTexture[ 6 ];
@@ -246,8 +231,7 @@ namespace RunJumpSwingMan {
 			floorEffect.Texture = checkerboardTexture;
 			*/
 		}
-
-
+		
 		/*
 		====================
 		InitializeSpike()
@@ -255,18 +239,17 @@ namespace RunJumpSwingMan {
 		  Setup effects for spike model.
 		====================
 		*/
-		private void InitializeSpike() {
-			foreach (ModelMesh mesh in spikeModel.Meshes) {
-				foreach (BasicEffect basicEffect in mesh.Effects) {
+		private void InitContentOfSpike() {
+			foreach ( ModelMesh mesh in spikeModel.Meshes ) {
+				foreach ( BasicEffect basicEffect in mesh.Effects ) {
 					basicEffect.TextureEnabled = true;
-					basicEffect.DiffuseColor = new Vector3(1.0f, 0.0f, 0.0f);
-					basicEffect.SpecularColor = new Vector3(1.0f, 0.5f, 0.5f);
-					basicEffect.AmbientLightColor = new Vector3(0.1f, 0.1f, 0.1f);
+					basicEffect.DiffuseColor = new Vector3( 1.0f, 0.0f, 0.0f );
+					basicEffect.SpecularColor = new Vector3( 1.0f, 0.5f, 0.5f );
+					basicEffect.AmbientLightColor = new Vector3( 0.1f, 0.1f, 0.1f );
 				}
 			}
 		}
-
-
+		
 		/*
 		====================
 		DrawVertices(VertexPositionNormalTexture[] vertices, BasicEffect[] basicEffects, Vector3 position, Vector3 rotationYawPitchRoll, Vector3 scale ) {
@@ -277,16 +260,15 @@ namespace RunJumpSwingMan {
 		  scale is a factor, so 1.0 is unchanged, 0.5 is half as big, and 2.0 is twice as big
 		====================
 		*/
-		private void DrawVertices(VertexPositionNormalTexture[] vertices, BasicEffect[] basicEffects, Vector3 position, Vector3 rotationYawPitchRoll, Vector3 scale ) {
-			foreach (BasicEffect basicEffect in basicEffects) {
-				basicEffect.World = Matrix.CreateTranslation(position);
-				basicEffect.World = Matrix.CreateFromYawPitchRoll(rotationYawPitchRoll.X, rotationYawPitchRoll.Y, rotationYawPitchRoll.Z) * basicEffect.World;
-				basicEffect.World = Matrix.CreateScale(scale) * basicEffect.World;
+		private void DrawVertices( VertexPositionNormalTexture[] vertices, BasicEffect[] basicEffects, Vector3 position, Vector3 rotationYawPitchRoll, Vector3 scale ) {
+			foreach ( BasicEffect basicEffect in basicEffects ) {
+				basicEffect.World = Matrix.CreateTranslation( position );
+				basicEffect.World = Matrix.CreateFromYawPitchRoll( rotationYawPitchRoll.X, rotationYawPitchRoll.Y, rotationYawPitchRoll.Z ) * basicEffect.World;
+				basicEffect.World = Matrix.CreateScale( scale ) * basicEffect.World;
 			}
-			camera.DrawVertices(vertices, basicEffects);
+			camera.DrawVertices( vertices, basicEffects );
 		}
-
-
+		
 		/*
 		====================
 		DrawVertices( VertexPositionNormalTexture[] vertices, BasicEffect[] basicEffects )
@@ -295,12 +277,8 @@ namespace RunJumpSwingMan {
 		  Just for consistency purposes; could call camera.DrawVertices( vertices, basicEffects ) directly
 		====================
 		*/
-		private void DrawVertices( VertexPositionNormalTexture[] vertices, BasicEffect[] basicEffects ) {
-			camera.DrawVertices(vertices, basicEffects);
-		}
-
-
-
+		private void DrawVertices( VertexPositionNormalTexture[] vertices, BasicEffect[] basicEffects ) => camera.DrawVertices( vertices, basicEffects );
+		
 		/*
 		====================
 		DrawModel( Model model, Vector3 position, Vector3 rotationYawPitchRoll, Vector3 scale )
@@ -313,8 +291,8 @@ namespace RunJumpSwingMan {
 		====================
 		*/
 		private void DrawModel( Model model, Vector3 position, Vector3 rotationYawPitchRoll, Vector3 scale ) {
-			foreach (ModelMesh mesh in model.Meshes) {
-				foreach (BasicEffect basicEffect in mesh.Effects) {
+			foreach ( ModelMesh mesh in model.Meshes ) {
+				foreach ( BasicEffect basicEffect in mesh.Effects ) {
 					basicEffect.World = Matrix.CreateTranslation( position );
 					basicEffect.World = Matrix.CreateFromYawPitchRoll( rotationYawPitchRoll.X, rotationYawPitchRoll.Y, rotationYawPitchRoll.Z ) * basicEffect.World;
 					basicEffect.World = Matrix.CreateScale( 2.0f ) * basicEffect.World;
@@ -322,8 +300,7 @@ namespace RunJumpSwingMan {
 			}
 			camera.DrawModel( model );
 		}
-
-
+		
 		/*
 		====================
 		DrawModel( Model model )
@@ -332,11 +309,8 @@ namespace RunJumpSwingMan {
 		  Just for consistency purposes; could call camera.DrawModel( model ) directly
 		====================
 		*/
-		private void DrawModel(Model model ) {
-			camera.DrawModel(model);
-		}
-
-
+		private void DrawModel( Model model ) => camera.DrawModel( model );
+		
 		/*
 		====================
 		UpdateCamera()
@@ -345,28 +319,34 @@ namespace RunJumpSwingMan {
 		  This needs to be done BEFORE drawing anything to camera.
 		====================
 		*/
-		void UpdateCamera() {
+		private void UpdateCamera() {
 			MouseState currentMouseState = Mouse.GetState();
+			int halfWidth = graphics.GraphicsDevice.Viewport.Width / 2;
+			int halfHeight = graphics.GraphicsDevice.Viewport.Height / 2;
 
 			int moveX = currentMouseState.X - halfWidth;
 			float newLookAngleX = lookAngleX + moveX * rotationSpeed;
-			if (maxXRotation >= (float)(2.0f * Math.PI) || (newLookAngleX >= -maxXRotation && newLookAngleX <= maxXRotation)) {
+			if ( maxXRotation >= ( float )( 2.0f * Math.PI ) || ( newLookAngleX >= -maxXRotation && newLookAngleX <= maxXRotation ) ) {
 				lookAngleX = newLookAngleX;
-				lookAngleX = lookAngleX % (float)(2.0f * Math.PI);
+				lookAngleX = lookAngleX % ( float )( 2.0f * Math.PI );
 			}
 
 			int moveY = currentMouseState.Y - halfHeight;
 			float newLookAngleY = lookAngleY + moveY * rotationSpeed;
-			if (maxYRotation >= (float)(2.0f * Math.PI) || (newLookAngleY >= -maxYRotation && newLookAngleY <= maxYRotation)) {
+			if ( maxYRotation >= ( float )( 2.0f * Math.PI ) || ( newLookAngleY >= -maxYRotation && newLookAngleY <= maxYRotation ) ) {
 				lookAngleY = newLookAngleY;
-				lookAngleY = lookAngleY % (float)(2.0f * Math.PI);
+				lookAngleY = lookAngleY % ( float )( 2.0f * Math.PI );
 			}
 
-			Mouse.SetPosition(halfWidth, halfHeight);
+			Console.WriteLine( "moveX: " + moveX + "\tmoveY: " + moveY );
 
-			camera.Update(cameraPosition, cameraTarget, cameraUpVector, lookAngleX, lookAngleY);
+			Mouse.SetPosition( halfWidth, halfHeight );
+
+			camera.Update( cameraPosition, cameraTarget, cameraUpVector, lookAngleX, lookAngleY );
 			//Console.WriteLine(cameraPosition + " " + cameraTarget);
 			//camera.Update(cameraPosition, cameraTarget, Vector3.Up);
 		}
+
 	}
+
 }

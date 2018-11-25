@@ -1,25 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.Xna.Framework;
-
+﻿using Microsoft.Xna.Framework;
 using RunJumpSwingMan.src.Framework;
 
 namespace RunJumpSwingMan.src.Gameplay {
-	class Block : Entity {
+
+	public class Block : Entity {
 
 		public Block() {
 			Anchored = true;
-			Size = new Vector3(20, 20, 20);
+			Size = new Vector3( 20, 20, 20 );
 		}
 
-		public override void Update(GameTime time) {
-
+		public override void Update( GameTime time ) {
 		}
-
-
+		
 	}
+
 }
