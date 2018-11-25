@@ -33,7 +33,7 @@ namespace RunJumpSwingMan.src.Framework {
 			Vector3 dif = bMax - bMin;
 
 			if ( dif.X >= 0 && dif.Y >= 0 && dif.Z >= 0 ) {
-				return new BoundingBox( bMax, bMin );
+				return new BoundingBox( bMin, bMax );
 			} else {
 				return null;
 			}

@@ -61,14 +61,14 @@ namespace RunJumpSwingMan {
 				Position = new Vector3( 0.0f, 2.0f, 0.0f )
 			};
 			worldo.AddEntity( playero );
-			/*
-			playero.Velocity = new Vector3(0, -1, 0);
+			
+			//playero.Velocity = new Vector3(0, -1, 0);
 			Block blocko = new Block();
 			blocko.Position = new Vector3(0, -5, 0);
 			Console.WriteLine(playero.Bounds);
 			Console.WriteLine(blocko.Bounds);
 			worldo.AddEntity(blocko);
-			*/
+			
 
 			InitializeGround();
 			
