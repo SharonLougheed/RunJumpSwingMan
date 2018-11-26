@@ -7,7 +7,6 @@ namespace RunJumpSwingMan.src.Gameplay {
 	public class PlayerController {
 
 		private Player subject;
-		private readonly Camera camera;
 
 		public float MouseSensitivity {
 			get;
@@ -22,17 +21,23 @@ namespace RunJumpSwingMan.src.Gameplay {
 		public void Update( GameTime time ) {
 			TurnPlayer( time );
 			MovePlayer( time );
+
+			KeyboardState kb = Input.CurrentKeyboard;
+
+			//checking for jump mechanics
+			if (kb.IsKeyDown(Keys.Space) && subject.Grounded) {
+				subject.Velocity = new Vector3(subject.Velocity.X, subject.JumpSpeed, subject.Velocity.Z);
+			}
 		}
 
 		/// <summary>
 		/// Moves the Player based on keyboard input
 		/// </summary>
-		/// <param name="time"></param>
+		/// <param name="time">The current time of the game</param>
 		public void MovePlayer( GameTime time ) {
-			KeyboardState kstate = Keyboard.GetState();
 
 			//get keyboard movement input
-			Vector2 wasdInput = Input.GetWASDVector( kstate );
+			Vector2 wasdInput = Input.GetWASDVector( Input.CurrentKeyboard );
 
 			//determine the local direction to move in
 			Vector2 lateralMovement = wasdInput * subject.MaxMoveSpeed;

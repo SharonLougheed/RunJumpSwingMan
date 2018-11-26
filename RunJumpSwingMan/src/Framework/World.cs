@@ -19,16 +19,16 @@ namespace RunJumpSwingMan.src.Framework {
 		LinkedList<Entity> _removeList;
 
 		/// <summary>
-		/// Acceleration dueto gravity. duh.
+		/// Acceleration due to gravity. duh.
 		/// </summary>
-		public float GravityAcceleration { get; set; }
+		public Vector3 GravityAcceleration { get; set; }
 
 		public World() {
 			_entities = new List<Entity>();
 			_addList = new LinkedList<Entity>();
 			_removeList = new LinkedList<Entity>();
 
-			GravityAcceleration = 9.8f;
+			GravityAcceleration = new Vector3(0, -10, 0);
 		}
 
 		/// <summary>
@@ -39,7 +39,7 @@ namespace RunJumpSwingMan.src.Framework {
 
 			foreach (Entity ent in _entities) {
 				ent.Update(gameTime);
-				ent.Position += ent.GetDisplacement(gameTime);
+				if (!ent.Anchored) ent.UpdateKinematics(gameTime);
 			}
 
 			//list of entity collision relations
@@ -76,6 +76,61 @@ namespace RunJumpSwingMan.src.Framework {
 			//perform any add/remove entity maintenance
 			ProcessEntityQueues();
 
+		}
+
+		/// <summary>
+		/// Checks for collisions with the given Ray among the Entities of the world
+		/// </summary>
+		/// <param name="ray">The Ray with which to check for intersections</param>
+		/// <param name="range">The max allowed range to return</param>
+		/// <param name="mask">A list of Entities to not check</param>
+		/// <returns>A nullable Tuple that returns the closest Entity hit and the point of intersection, if there is one</returns>
+		public Tuple<Entity, Vector3, float> Raycast(Ray ray, float range, List<Entity> mask) {
+			Entity closestHit = null;
+			float closestDist = float.PositiveInfinity;
+			foreach(Entity ent in _entities) {
+				if (mask.Contains(ent)) continue;
+				float? dist = ray.Intersects(ent.Bounds);
+				//if dist actually has a value and is less than the current min and the range
+				if (dist.HasValue && dist.Value < range && dist.Value < closestDist ) {
+					closestHit = ent;
+					closestDist = dist.Value;
+				}
+			}
+			if (closestHit != null) {
+				return new Tuple<Entity, Vector3, float>(closestHit, ray.Direction * closestDist, closestDist);
+			} else {
+				return null;
+			}
+		}
+
+		/// <summary>
+		/// Checks for collisions with the given Ray among the Entities of the world
+		/// </summary>
+		/// <param name="ray">The Ray with which to check for intersections</param>
+		/// <param name="range">The max allowed range to return</param>
+		/// <param name="mask">An Entity to not check</param>
+		/// <returns>A nullable Tuple that returns the closest Entity hit and the point of intersection, if there is one</returns>
+		public Tuple<Entity, Vector3, float> Raycast(Ray ray, float range, Entity mask) {
+			Entity closestHit = null;
+			float closestDist = float.PositiveInfinity;
+			foreach (Entity ent in _entities) {
+				if (ent == mask) continue;
+				float? dist = ray.Intersects(ent.Bounds);
+				//if dist actually has a value and is less than the current min and the range
+				if (dist.HasValue) {
+					//Console.WriteLine(dist + " " + closestDist + " " + range);
+					if (dist.Value <= range && dist.Value < closestDist) {
+						closestHit = ent;
+						closestDist = dist.Value;
+					}
+				}
+			}
+			if (closestHit != null) {
+				return new Tuple<Entity, Vector3, float>(closestHit, ray.Direction * closestDist, closestDist);
+			} else {
+				return null;
+			}
 		}
 
 		/// <summary>

@@ -72,13 +72,32 @@ namespace RunJumpSwingMan.src.Framework {
 		/// Called by the Entity's Parent World to update the Entity
 		/// </summary>
 		/// <param name="gameTime">The time of the game at the moment Update was called</param>
-		public abstract void Update( GameTime gameTime );
+		public abstract void Update(GameTime gameTime);
 
 		/// <summary>
-		/// Retusn the Entity's new position based on velocity and time elapsed BUT DOES NOT UPDATE ITS POSITION
+		/// Updates Position and Velocity as a function of time
 		/// </summary>
-		/// <param name="time">Amount of time elapsed in</param>
-		public virtual Vector3 GetDisplacement( GameTime time ) => Velocity * ( float )time.ElapsedGameTime.TotalSeconds;
+		/// <param name="time"></param>
+		public virtual void UpdateKinematics(GameTime time) {
+			Position += GetDisplacement(time);
+			UpdateVelocity(time);
+		}
+
+		/// <summary>
+		/// Return the Entity's new position based on velocity and time elapsed BUT DOES NOT UPDATE ITS POSITION
+		/// </summary>
+		/// <param name="time">Time of the game</param>
+		public virtual Vector3 GetDisplacement(GameTime time) {
+			return Geometry.KinematicDistance(Velocity, Parent.GravityAcceleration * GravityScale, (float)time.ElapsedGameTime.TotalSeconds);
+		}
+
+		/// <summary>
+		/// Updates the Entity's Velocity as a function of acceleration (at the moment, only due to gravity) and time
+		/// </summary>
+		/// <param name="time"></param>
+		public virtual void UpdateVelocity(GameTime time) {
+			Velocity = Geometry.KinematicSpeed(Velocity, Parent.GravityAcceleration * GravityScale, (float)time.ElapsedGameTime.TotalSeconds);
+		}
 
 		/// <summary>
 		/// Returns whether two Entities are intersecting
@@ -104,14 +123,12 @@ namespace RunJumpSwingMan.src.Framework {
 			if ( ent1.Anchored || !ent1.Intersects( ent2 ) ) {
 				return;
 			}
-
 			//get the area that they intersect
 			BoundingBox? intersectionArea = Geometry.GetIntersection( ent1.Bounds, ent2.Bounds );
 
 			//time for the position correction
 			if ( intersectionArea.HasValue ) {
 				Vector3 area = intersectionArea.Value.Max - intersectionArea.Value.Min;
-				Console.WriteLine( area );
 				// position/velocity correction for the X axis
 				if ( area.X < area.Y && area.X < area.Z ) {
 					if ( ent1.Position.X > ent2.Position.X ) {

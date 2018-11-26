@@ -12,12 +12,17 @@ namespace RunJumpSwingMan.src.Gameplay {
 		//angle of looking around, in deg
 		private Vector2 _lookAngle;
 
+		public float JumpSpeed {
+			get;
+			set;
+		}
+
 		public PlayerController Controller {
 			get;
 			set;
 		}
 
-		//The angle the vector is looking at
+		///The angle the vector is looking at
 		public Vector2 LookAngle {
 			get => _lookAngle;
 			//automatically recalculate the lookVector
@@ -32,15 +37,15 @@ namespace RunJumpSwingMan.src.Gameplay {
 		public Vector3 LookVector => _lookVector;
 
 		public Player() : base() {
-			//GravityScale = 0;
 			Size = new Vector3( 2, 4, 2 );
 			Controller = new PlayerController( this );
 			MaxMoveSpeed = 10;
+			JumpSpeed = 8;
 			LookAngle = new Vector2();
 		}
 
 		public override void Update( GameTime time ) {
-			//Console.WriteLine(_lookAngle + " " + _lookVector);
+			base.Update(time);
 			Controller.Update( time );
 		}
 

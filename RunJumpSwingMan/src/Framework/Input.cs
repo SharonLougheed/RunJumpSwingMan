@@ -29,20 +29,42 @@ namespace RunJumpSwingMan.src.Framework {
 			private set;
 		}
 
+		public static KeyboardState CurrentKeyboard {
+			get;
+			private set;
+		}
+
+		public static KeyboardState OldKeyboard {
+			get;
+			private set;
+		}
+
 		public static bool MouseLocked {
 			get;
 			set;
 		}
 
-		public static void Initialize( GraphicsDeviceManager devman ) {
-			_graphicsMan = devman;
+		/// <summary>
+		/// Should be called at the initialization of the game to inizialize values
+		/// </summary>
+		/// <param name="devman">The GraphicsDeviceManager of the game</param>
+		public static void Initialize( GraphicsDeviceManager deviceManager ) {
+			_graphicsMan = deviceManager;
 			CurrentMouse = Mouse.GetState();
-			OldMouse = Mouse.GetState();
+			OldMouse = CurrentMouse;
+			CurrentKeyboard = Keyboard.GetState();
+			OldKeyboard = CurrentKeyboard;
 		}
 
+		/// <summary>
+		/// Updates internal input values and maintains automated input controls
+		/// </summary>
 		public static void Update() {
 			OldMouse = CurrentMouse;
 			CurrentMouse = Mouse.GetState();
+
+			OldKeyboard = CurrentKeyboard;
+			CurrentKeyboard = Keyboard.GetState();
 
 			MouseDelta = CalculateMouseDelta();
 			//if mouse is locked then reset position after calculating the delta
@@ -53,7 +75,10 @@ namespace RunJumpSwingMan.src.Framework {
 
 		}
 
-		//calculates the amount of mouse movement since the last update call
+		/// <summary>
+		/// Calculates the amount of mouse movement since the last update call
+		/// </summary>
+		/// <returns></returns>
 		private static Vector2 CalculateMouseDelta() {
 			Vector2 toReturn = new Vector2();
 
@@ -70,10 +95,10 @@ namespace RunJumpSwingMan.src.Framework {
 		}
 
 		/// <summary>
-		/// Returns the direction of a specified axis of input
+		/// Returns the net direction of a specified axis of input
 		/// </summary>
-		/// <param name="axisName"></param>
-		/// <param name="kState"></param>
+		/// <param name="axisName">The name of the input axis to measure ("Horizontal" or "Vertical")</param>
+		/// <param name="kState">The KeyboardState to measure</param>
 		/// <returns></returns>
 		public static float GetAxis( string axisName, KeyboardState kState ) {
 			float toReturn = 0;
@@ -106,10 +131,9 @@ namespace RunJumpSwingMan.src.Framework {
 		}
 
 		/// <summary>
-		/// Returns a Vector2 representation of the direction the WASD keys are pressing
-		/// Normalized
+		/// Returns a normalized Vector2 representation of the direction the WASD keys are pressing
 		/// </summary>
-		/// <param name="kState"></param>
+		/// <param name="kState">The KeyboardState to measure</param>
 		/// <returns></returns>
 		public static Vector2 GetWASDVector( KeyboardState kState ) {
 			Vector2 toReturn = new Vector2( GetAxis( "Horizontal", kState ), GetAxis( "Vertical", kState ) );

@@ -58,11 +58,10 @@ namespace RunJumpSwingMan {
 			Input.Initialize( graphics );
 			worldo = new World();
 			playero = new Player {
-				Position = new Vector3( 0.0f, 2.0f, 0.0f )
+				Position = new Vector3( 0.0f, 20.0f, 0.0f )
 			};
 			worldo.AddEntity( playero );
 			
-			//playero.Velocity = new Vector3(0, -1, 0);
 			Block blocko = new Block();
 			blocko.Position = new Vector3(0, -5, 0);
 			Console.WriteLine(playero.Bounds);
@@ -115,35 +114,6 @@ namespace RunJumpSwingMan {
 			if ( Keyboard.GetState().IsKeyDown( Keys.Escape ) ) {
 				Exit();
 			}
-			/*
-			float moveSpeed = playerForwardWalkSpeed;
-			//Running?
-			if ( Keyboard.GetState().IsKeyDown( Keys.LeftShift ) || Keyboard.GetState().IsKeyDown( Keys.RightShift ) ) {
-				moveSpeed = playerForwardWalkSpeed * playerRunMultiplier;
-			}
-			
-			Vector3 forward = Vector3.Normalize(camera.GetForwardVector());
-
-			Vector3 right = Vector3.Normalize(camera.GetRightVector());
-
-			if ( Keyboard.GetState().IsKeyDown( Keys.W ) ) { //Front
-				cameraPosition = cameraPosition - forward * moveSpeed;
-				cameraTarget = cameraTarget - forward * moveSpeed;
-			}
-			else if ( Keyboard.GetState().IsKeyDown( Keys.S ) ) { //Back
-				cameraPosition = cameraPosition + forward * moveSpeed;
-				cameraTarget = cameraTarget + forward * moveSpeed;
-			}
-			else if (Keyboard.GetState().IsKeyDown(Keys.A)) { //Left
-				cameraPosition = cameraPosition - right * moveSpeed;
-				cameraTarget = cameraTarget - right * moveSpeed;
-			}
-			else if (Keyboard.GetState().IsKeyDown(Keys.D)) { //Right
-				cameraPosition = cameraPosition + right * moveSpeed;
-				cameraTarget = cameraTarget + right * moveSpeed;
-			}
-			*/
-
 			base.Update( gameTime );
 		}
 		
