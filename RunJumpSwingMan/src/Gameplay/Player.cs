@@ -9,6 +9,7 @@ namespace RunJumpSwingMan.src.Gameplay {
 	public class Player : Mob {
 
 		private Vector3 _lookVector;
+		private PlayerController _controller;
 		//angle of looking around, in deg
 		private Vector2 _lookAngle;
 
@@ -18,8 +19,12 @@ namespace RunJumpSwingMan.src.Gameplay {
 		}
 
 		public PlayerController Controller {
-			get;
-			set;
+			get { return _controller; }
+			set {
+				if (_controller != null) _controller.Subject = null;
+				_controller = value;
+				value.Subject = this;
+			}
 		}
 
 		///The angle the vector is looking at

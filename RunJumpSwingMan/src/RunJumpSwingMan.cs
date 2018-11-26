@@ -58,17 +58,20 @@ namespace RunJumpSwingMan {
 			Input.Initialize( graphics );
 			worldo = new World();
 			playero = new Player {
-				Position = new Vector3( 0.0f, 20.0f, 0.0f )
+				Position = new Vector3( 0.0f, 10.0f, 0.0f )
 			};
 			worldo.AddEntity( playero );
 			
 			Block blocko = new Block();
-			blocko.Position = new Vector3(0, -5, 0);
-			Console.WriteLine(playero.Bounds);
-			Console.WriteLine(blocko.Bounds);
+			blocko.Position = new Vector3(0, -10, 0);
 			worldo.AddEntity(blocko);
-			
 
+			
+			Block blocko2 = new Block();
+			blocko2.Position = new Vector3(0, 30, 0);
+			blocko2.Size = new Vector3(10, 10, 10);
+			worldo.AddEntity(blocko2);
+			
 			InitializeGround();
 			
 			IsMouseVisible = false;

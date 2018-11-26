@@ -69,6 +69,8 @@ namespace RunJumpSwingMan.src.Framework {
 				//corrects the entity's position and velocity
 				Entity.CorrectCollision(ent1, ent2);
 
+				ent1.Velocity -= ent1.Velocity * ((ent1.StaticFriction + ent2.StaticFriction) / 2) * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
 				//have the entity fire off its collision event
 				ent1.OnCollide(ent2);
 			}
@@ -92,7 +94,7 @@ namespace RunJumpSwingMan.src.Framework {
 				if (mask.Contains(ent)) continue;
 				float? dist = ray.Intersects(ent.Bounds);
 				//if dist actually has a value and is less than the current min and the range
-				if (dist.HasValue && dist.Value < range && dist.Value < closestDist ) {
+				if (dist.HasValue && dist.Value <= range && dist.Value < closestDist ) {
 					closestHit = ent;
 					closestDist = dist.Value;
 				}

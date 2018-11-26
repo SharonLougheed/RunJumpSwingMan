@@ -5,7 +5,12 @@ namespace RunJumpSwingMan.src.Framework {
 
 	public static class Geometry {
 
-		//returns the 3D position of the projection of a point along a plane
+		/// <summary>
+		/// returns the 3D position of the projection of a point along a plane
+		/// </summary>
+		/// <param name="point"></param>
+		/// <param name="plane"></param>
+		/// <returns></returns>
 		public static Vector3 ProjectionOnPlane( Vector3 point, Plane plane ) {
 			Vector3 planeOrigin = plane.Normal * Math.Abs( plane.D );
 			Vector3 dif = point - planeOrigin;
@@ -17,6 +22,18 @@ namespace RunJumpSwingMan.src.Framework {
 			Vector3 projDif = dif - projDifOnNorm;
 
 			return planeOrigin + projDif;
+		}
+
+		/// <summary>
+		/// Returns the projection of Vector3 v on the plane perpendicular to normalized Vector3 norm
+		/// </summary>
+		/// <param name="v">The Vector3 to take the projection of</param>
+		/// <param name="norm">The normalized direction of the normal of the plane</param>
+		/// <returns></returns>
+		public static Vector3 PerpendicularProjection(Vector3 v, Vector3 norm) {
+			//the projection of v on norm
+			Vector3 vPara = Vector3.Dot(v, norm) * norm;
+			return v - vPara;
 		}
 
 		/// <summary>

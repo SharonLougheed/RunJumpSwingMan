@@ -31,6 +31,11 @@ namespace RunJumpSwingMan.src.Framework {
 			set;
 		}
 
+		public float StaticFriction {
+			get;
+			set;
+		}
+
 		public float Volume => Size.X * Size.Y * Size.Z;
 
 		public BoundingBox Bounds => GetBoundingBox();
@@ -61,11 +66,10 @@ namespace RunJumpSwingMan.src.Framework {
 			Position = new Vector3();
 			Size = new Vector3();
 			Velocity = new Vector3();
-			//Rotation = new Quaternion();
-			//RotationalVelocity = new Quaternion();
 
 			Anchored = false;
 			GravityScale = 1f;
+			StaticFriction = .6f;
 		}
 
 		/// <summary>
@@ -164,6 +168,7 @@ namespace RunJumpSwingMan.src.Framework {
 						ent1.Velocity = new Vector3( ent1.Velocity.X, ent1.Velocity.Y, Math.Min( ent1.Velocity.Z, 0 ) );
 					}
 				}
+
 			}
 
 		}
