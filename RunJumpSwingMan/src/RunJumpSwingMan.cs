@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using RunJumpSwingMan.src.Framework;
 using RunJumpSwingMan.src.Gameplay;
 
-namespace RunJumpSwingMan {
+namespace RunJumpSwingMan.src {
 
 	/// <summary>
 	/// This is the main type for your game.
@@ -15,31 +15,26 @@ namespace RunJumpSwingMan {
 		private GraphicsDeviceManager graphics;
 		private SpriteBatch spriteBatch;
 
-		//For camera
 		private Camera camera;
-		private Vector3 cameraTarget = Vector3.Zero;
-		private Vector3 cameraUpVector = Vector3.Up;
-		private Vector3 cameraPosition = new Vector3( 0.0f, 20.0f, 40.0f );
-		private float lookAngleX = 0.0f, lookAngleY = 0.0f; //In radians
+		private Vector3 cameraPosition;
+		private float cameraYaw;
+		private float cameraPitch;
+		private float cameraRoll;
+		private float aspectRatio;
 		private readonly float rotationSpeed = 0.01f;
 		private readonly float maxXRotation = 2.0f * ( float )Math.PI; // radians
 		private readonly float maxYRotation = 2.0f * ( float )Math.PI; //In radians (2pi for no limit)
-		private readonly float playerForwardWalkSpeed = 1.0f;
-		private readonly float playerBackwardWalkSpeed = 0.75f;
-		private readonly float playerSidewaysWalkSpeed = 1.0f;
-		private readonly float playerRunMultiplier = 2.0f;
 
-		//For floor
-		private Texture2D checkerboardTexture;
-
-		//Objects to render
 		private Texture2D crosshairTexture;
 		private Model spikeModel;
-		private VertexPositionNormalTexture[] floorVertices;
-		private BasicEffect floorEffect;
 
-		private World worldo;
-		private Player playero;
+		private World world;
+		private Player player;
+
+		private readonly Vector3[] lightDiffuseColor = new Vector3[ 3 ];
+		private readonly Vector3[] lightDirection = new Vector3[ 3 ];
+		private readonly Vector3[] lightSpecularColor = new Vector3[ 3 ];
+		private readonly bool[] directionalLightEnabled = { false, false, false };
 
 		public RunJumpSwingMan() {
 			graphics = new GraphicsDeviceManager( this );
@@ -54,31 +49,79 @@ namespace RunJumpSwingMan {
 		/// and initialize them as well.
 		/// </summary>
 		protected override void Initialize() {
+			camera = new Camera();
+			cameraPosition = Vector3.Zero;
+			cameraYaw = 0.0f;
+			cameraPitch = 0.0f;
+			cameraRoll = 0.0f;
+			aspectRatio = graphics.GraphicsDevice.Viewport.Width / graphics.GraphicsDevice.Viewport.Height;
+
 			Input.MouseLocked = true;
 			Input.Initialize( graphics );
-			worldo = new World();
-			playero = new Player {
-				Position = new Vector3( 0.0f, 10.0f, 0.0f )
-			};
-			worldo.AddEntity( playero );
-			
-			Block blocko = new Block();
-			blocko.Position = new Vector3(0, -10, 0);
-			worldo.AddEntity(blocko);
 
-			
-			Block blocko2 = new Block();
-			blocko2.Position = new Vector3(0, 30, 0);
-			blocko2.Size = new Vector3(10, 10, 10);
-			worldo.AddEntity(blocko2);
-			
-			InitializeGround();
-			
+			world = new World();
+
+			player = new Player {
+				Position = Vector3.Zero
+			};
+			world.AddEntity( player );
+
+			Block block = new Block {
+				Position = new Vector3( 0.0f, -10.0f, 0.0f )
+			};
+			world.AddEntity( block );
+
+			Block block2 = new Block {
+				Position = new Vector3( 0.0f, -11.0f, 0.0f ),
+				Size = new Vector3( 10.0f, 10.0f, 10.0f )
+			};
+			world.AddEntity( block2 );
+
+			float testingDistance = 10.0f;
+
+			Block cube1 = new Block() {
+				Position = testingDistance * Vector3.UnitZ
+			};
+
+			Block cube2 = new Block() {
+				Position = -testingDistance * Vector3.UnitZ
+			};
+
+			Block cube3 = new Block() {
+				Position = testingDistance * Vector3.UnitX
+			};
+
+			Block cube4 = new Block() {
+				Position = -testingDistance * Vector3.UnitX
+			};
+
+			Block cube5 = new Block() {
+				Position = testingDistance * Vector3.UnitY
+			};
+
+			Block cube6 = new Block() {
+				Position = -testingDistance * Vector3.UnitY
+			};
+
+			world.AddEntity( cube1 );
+			world.AddEntity( cube2 );
+			world.AddEntity( cube3 );
+			world.AddEntity( cube4 );
+			world.AddEntity( cube5 );
+			world.AddEntity( cube6 );
+
+			world.ProcessEntityQueues();
+
 			IsMouseVisible = false;
+
+			lightDiffuseColor[ 0 ] = new Vector3( 1.0f, 1.0f, 1.0f ); // a white light
+			lightDirection[ 0 ] = new Vector3( 0.5f, 0.75f, -0.5f );  // some direction of light
+			lightSpecularColor[ 0 ] = new Vector3( 1.0f, 1.0f, 1.0f ); // with white highlights
+			directionalLightEnabled[ 0 ] = true;
 
 			base.Initialize();
 		}
-		
+
 		/// <summary>
 		/// LoadContent will be called once per game and is the place to load
 		/// all of your content.
@@ -87,15 +130,19 @@ namespace RunJumpSwingMan {
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch( GraphicsDevice );
 
-			camera = new Camera( graphics, spriteBatch );
-
-			checkerboardTexture = Content.Load<Texture2D>( "textures/checkerboard" );
 			crosshairTexture = Content.Load<Texture2D>( "textures/crosshair" );
 			spikeModel = Content.Load<Model>( "models/spike" );
 
+			foreach ( Entity entity in world.Entities ) {
+				entity.VertexBuffer = Shapes.IndexedVertexBufferCube( graphics, Color.SkyBlue );
+				entity.IndexBuffer = Shapes.IndexBufferCube( graphics );
+				entity.PrimitiveCount = Shapes.PrimitiveCountCube();
+				entity.BasicEffect = BasicEffect();
+			}
+
 			InitContentOfSpike();
 		}
-		
+
 		/// <summary>
 		/// UnloadContent will be called once per game and is the place to unload
 		/// game-specific content.
@@ -103,108 +150,104 @@ namespace RunJumpSwingMan {
 		protected override void UnloadContent() {
 			// TODO: Unload any non ContentManager content here
 		}
-		
+
 		/// <summary>
 		/// Allows the game to run logic such as updating the world,
 		/// checking for collisions, gathering input, and playing audio.
 		/// </summary>
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Update( GameTime gameTime ) {
-			Input.Update();
-			worldo.Update( gameTime );
-			camera.Update( playero.Position, playero.Position + playero.LookVector, Vector3.UnitY );
-
 			if ( Keyboard.GetState().IsKeyDown( Keys.Escape ) ) {
 				Exit();
 			}
+
+			UpdateCameraAngles();
+			Input.Update();
+			world.Update( gameTime );
+
 			base.Update( gameTime );
 		}
-		
+
 		/// <summary>
 		/// This is called when the game should draw itself.
 		/// </summary>
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw( GameTime gameTime ) {
-			GraphicsDevice.Clear( Color.DarkSlateGray );
-			//UpdateCamera(); //This needs to be done before drawing stuff
+			GraphicsDevice.Clear( Color.Beige );
+
+			camera.Update( player.Position, cameraYaw, cameraPitch, cameraRoll, aspectRatio );
+
+			RasterizerState rasterizerState = new RasterizerState {
+				//CullMode = CullMode.CullCounterClockwiseFace
+				CullMode = CullMode.None
+			};
+			graphics.GraphicsDevice.RasterizerState = rasterizerState;
+
+			foreach ( Entity entity in world.Entities ) {
+				entity.Draw( gameTime, graphics, camera );
+			}
 
 			//Draw stuff here
-			DrawVertices( floorVertices, new BasicEffect[] { floorEffect } );
-			DrawModel( spikeModel, new Vector3( -5.0f, 10.0f, 0.0f ), new Vector3( ( float )Math.PI / 2, ( float )Math.PI / 2, 0.0f ), new Vector3( 2.0f, 2.0f, 2.0f ) );
-			DrawModel( spikeModel, new Vector3( 5.0f, 0.0f, -10.0f ), new Vector3( ( float )Math.PI / 2, -( float )Math.PI / 2, 0.0f ), new Vector3( 2.0f, 2.0f, -2.0f ) );
+			//DrawVertices( floorVertices, new BasicEffect[] { floorEffect } );
+			//DrawModel( spikeModel, new Vector3( -5.0f, 10.0f, 0.0f ), new Vector3( ( float )Math.PI / 2, ( float )Math.PI / 2, 0.0f ), new Vector3( 2.0f, 2.0f, 2.0f ) );
+			//DrawModel( spikeModel, new Vector3( 5.0f, 0.0f, -10.0f ), new Vector3( ( float )Math.PI / 2, -( float )Math.PI / 2, 0.0f ), new Vector3( 2.0f, 2.0f, -2.0f ) );
 
-			int halfWidth = graphics.GraphicsDevice.Viewport.Width / 2;
-			int halfHeight = graphics.GraphicsDevice.Viewport.Height / 2;
-
-			camera.DrawImage( crosshairTexture, new Rectangle( halfWidth - 8, halfHeight - 8, 17, 17 ), Color.White );
+			int halfWidth = graphics.PreferredBackBufferWidth / 2;
+			int halfHeight = graphics.PreferredBackBufferHeight / 2;
+			DrawImage( crosshairTexture, new Rectangle( halfWidth - 8, halfHeight - 8, 17, 17 ), Color.White );
 
 			base.Draw( gameTime );
 		}
-		
+
+		public BasicEffect BasicEffect() {
+			return new BasicEffect( graphics.GraphicsDevice );
+		}
+
 		/*
 		====================
-		InitializeGround()
+		DrawModel( Model model )
 
-		  Create floor vertices, with positions and textures. Also set up the floor effect.
+		  Draws a 3D model to the screen using ViewMatrix, ViewMatrix, and lighting settings
+		  So that all models are drawn correctly.
+		  To be called from the runner class.
 		====================
 		*/
-		private void InitializeGround() {
-			floorVertices = new VertexPositionNormalTexture[ 6 ];
-			floorVertices[ 0 ].Position = new Vector3( -100.0f, 0f, 100.0f );
-			floorVertices[ 1 ].Position = new Vector3( -100.0f, 0f, -100.0f );
-			floorVertices[ 2 ].Position = new Vector3( 100.0f, 0f, 100.0f );
-			floorVertices[ 3 ].Position = floorVertices[ 1 ].Position;
-			floorVertices[ 4 ].Position = new Vector3( 100.0f, 0f, -100.0f );
-			floorVertices[ 5 ].Position = floorVertices[ 2 ].Position;
+		public void DrawModel( Model model ) {
+			//Draw model loaded from files
+			foreach ( ModelMesh mesh in model.Meshes ) {
+				//Effects for this model
+				foreach ( BasicEffect basicEffect in mesh.Effects ) {
+					basicEffect.View = camera.ViewMatrix;
+					basicEffect.Projection = camera.ProjectionMatrix;
 
-			floorVertices[ 0 ].Normal = new Vector3( 0.0f, 1.0f, 0.0f );
-			floorVertices[ 1 ].Normal = floorVertices[ 0 ].Normal;
-			floorVertices[ 2 ].Normal = floorVertices[ 0 ].Normal;
-			floorVertices[ 3 ].Normal = floorVertices[ 0 ].Normal;
-			floorVertices[ 4 ].Normal = floorVertices[ 0 ].Normal;
-			floorVertices[ 5 ].Normal = floorVertices[ 0 ].Normal;
+					basicEffect.LightingEnabled = true;
+					basicEffect.DirectionalLight0.Enabled = directionalLightEnabled[ 0 ];
+					basicEffect.DirectionalLight0.DiffuseColor = lightDiffuseColor[ 0 ];
+					basicEffect.DirectionalLight0.Direction = lightDirection[ 0 ];
+					basicEffect.DirectionalLight0.SpecularColor = lightSpecularColor[ 0 ];
 
-			floorVertices[ 0 ].TextureCoordinate = new Vector2( 0.0f, 0.0f );
-			floorVertices[ 1 ].TextureCoordinate = new Vector2( 0.0f, 1.0f );
-			floorVertices[ 2 ].TextureCoordinate = new Vector2( 1.0f, 0.0f );
-			floorVertices[ 3 ].TextureCoordinate = floorVertices[ 1 ].TextureCoordinate;
-			floorVertices[ 4 ].TextureCoordinate = new Vector2( 1.0f, 1.0f );
-			floorVertices[ 5 ].TextureCoordinate = floorVertices[ 2 ].TextureCoordinate;
-
-			floorEffect = new BasicEffect( graphics.GraphicsDevice ) {
-				TextureEnabled = true,
-				Texture = checkerboardTexture
-			};
-
-			/*
-			floorVertices = new VertexPositionNormalTexture[ 6 ];
-			floorVertices[ 0 ].Position = new Vector3( -20.0f, 0.0f, 20.0f );
-			floorVertices[ 1 ].Position = new Vector3( -20.0f, 0.0f, -20.0f );
-			floorVertices[ 2 ].Position = new Vector3( 20.0f, 0.0f, 20.0f );
-			floorVertices[ 3 ].Position = floorVertices[ 1 ].Position;
-			floorVertices[ 4 ].Position = new Vector3( 20.0f, 0.0f, -20.0f );
-			floorVertices[ 5 ].Position = floorVertices[ 2 ].Position;
-
-			floorVertices[ 0 ].Normal = new Vector3( 0.0f, 1.0f, 0.0f );
-			floorVertices[ 1 ].Normal = floorVertices[0].Normal;
-			floorVertices[ 2 ].Normal = floorVertices[0].Normal;
-			floorVertices[ 3 ].Normal = floorVertices[0].Normal;
-			floorVertices[ 4 ].Normal = floorVertices[0].Normal;
-			floorVertices[ 5 ].Normal = floorVertices[0].Normal;
-
-			floorVertices[ 0 ].TextureCoordinate = new Vector2( 0.0f, 0.0f );
-			floorVertices[ 1 ].TextureCoordinate = new Vector2( 0.0f, 1.0f );
-			floorVertices[ 2 ].TextureCoordinate = new Vector2( 1.0f, 0.0f );
-			floorVertices[ 3 ].TextureCoordinate = floorVertices[ 1 ].TextureCoordinate;
-			floorVertices[ 4 ].TextureCoordinate = new Vector2( 1.0f, 1.0f );
-			floorVertices[ 5 ].TextureCoordinate = floorVertices[ 2 ].TextureCoordinate;
-
-			floorEffect = new BasicEffect(graphics.GraphicsDevice);
-			floorEffect.TextureEnabled = true;
-			floorEffect.Texture = checkerboardTexture;
-			*/
+					foreach ( EffectPass pass in basicEffect.CurrentTechnique.Passes ) {
+						pass.Apply();
+					}
+				}
+				mesh.Draw();
+			}
 		}
-		
+
+		/*
+		====================
+		DrawImage(Texture2D image, Rectangle destinationRectangle)
+
+		  Draws a 2D image at a given rectangle (which includes the location and size to fit it to) with given color
+		  If color is white, the color doesn't change
+		====================
+		*/
+		public void DrawImage( Texture2D image, Rectangle destinationRectangle, Color color ) {
+			spriteBatch.Begin();
+			spriteBatch.Draw( image, destinationRectangle, color );
+			spriteBatch.End();
+		}
+
 		/*
 		====================
 		InitializeSpike()
@@ -222,36 +265,7 @@ namespace RunJumpSwingMan {
 				}
 			}
 		}
-		
-		/*
-		====================
-		DrawVertices(VertexPositionNormalTexture[] vertices, BasicEffect[] basicEffects, Vector3 position, Vector3 rotationYawPitchRoll, Vector3 scale ) {
 
-		  Transform vertices and send to camera to draw.
-		  position is coordinates
-		  rotationYawPitchRoll is in radians, X=yaw, Y=pitch, Z=roll
-		  scale is a factor, so 1.0 is unchanged, 0.5 is half as big, and 2.0 is twice as big
-		====================
-		*/
-		private void DrawVertices( VertexPositionNormalTexture[] vertices, BasicEffect[] basicEffects, Vector3 position, Vector3 rotationYawPitchRoll, Vector3 scale ) {
-			foreach ( BasicEffect basicEffect in basicEffects ) {
-				basicEffect.World = Matrix.CreateTranslation( position );
-				basicEffect.World = Matrix.CreateFromYawPitchRoll( rotationYawPitchRoll.X, rotationYawPitchRoll.Y, rotationYawPitchRoll.Z ) * basicEffect.World;
-				basicEffect.World = Matrix.CreateScale( scale ) * basicEffect.World;
-			}
-			camera.DrawVertices( vertices, basicEffects );
-		}
-		
-		/*
-		====================
-		DrawVertices( VertexPositionNormalTexture[] vertices, BasicEffect[] basicEffects )
-
-		  Send to camera to draw
-		  Just for consistency purposes; could call camera.DrawVertices( vertices, basicEffects ) directly
-		====================
-		*/
-		private void DrawVertices( VertexPositionNormalTexture[] vertices, BasicEffect[] basicEffects ) => camera.DrawVertices( vertices, basicEffects );
-		
 		/*
 		====================
 		DrawModel( Model model, Vector3 position, Vector3 rotationYawPitchRoll, Vector3 scale )
@@ -271,19 +285,10 @@ namespace RunJumpSwingMan {
 					basicEffect.World = Matrix.CreateScale( 2.0f ) * basicEffect.World;
 				}
 			}
-			camera.DrawModel( model );
-		}
-		
-		/*
-		====================
-		DrawModel( Model model )
 
-		  Send to camera to draw
-		  Just for consistency purposes; could call camera.DrawModel( model ) directly
-		====================
-		*/
-		private void DrawModel( Model model ) => camera.DrawModel( model );
-		
+			DrawModel( model );
+		}
+
 		/*
 		====================
 		UpdateCamera()
@@ -292,32 +297,26 @@ namespace RunJumpSwingMan {
 		  This needs to be done BEFORE drawing anything to camera.
 		====================
 		*/
-		private void UpdateCamera() {
+		private void UpdateCameraAngles() {
 			MouseState currentMouseState = Mouse.GetState();
-			int halfWidth = graphics.GraphicsDevice.Viewport.Width / 2;
-			int halfHeight = graphics.GraphicsDevice.Viewport.Height / 2;
+			int halfWidth = graphics.PreferredBackBufferWidth / 2;
+			int halfHeight = graphics.PreferredBackBufferHeight / 2;
 
 			int moveX = currentMouseState.X - halfWidth;
-			float newLookAngleX = lookAngleX + moveX * rotationSpeed;
-			if ( maxXRotation >= ( float )( 2.0f * Math.PI ) || ( newLookAngleX >= -maxXRotation && newLookAngleX <= maxXRotation ) ) {
-				lookAngleX = newLookAngleX;
-				lookAngleX = lookAngleX % ( float )( 2.0f * Math.PI );
+			float newCameraYaw = cameraYaw + moveX * rotationSpeed;
+			if ( maxXRotation >= MathHelper.TwoPi || ( newCameraYaw >= -maxXRotation && newCameraYaw <= maxXRotation ) ) {
+				cameraYaw = newCameraYaw;
+				cameraYaw = cameraYaw % MathHelper.TwoPi;
 			}
 
 			int moveY = currentMouseState.Y - halfHeight;
-			float newLookAngleY = lookAngleY + moveY * rotationSpeed;
-			if ( maxYRotation >= ( float )( 2.0f * Math.PI ) || ( newLookAngleY >= -maxYRotation && newLookAngleY <= maxYRotation ) ) {
-				lookAngleY = newLookAngleY;
-				lookAngleY = lookAngleY % ( float )( 2.0f * Math.PI );
+			float newCameraPitch = cameraPitch + moveY * rotationSpeed;
+			if ( maxYRotation >= MathHelper.TwoPi || ( newCameraPitch >= -maxYRotation && newCameraPitch <= maxYRotation ) ) {
+				cameraPitch = newCameraPitch;
+				cameraPitch = cameraPitch % MathHelper.TwoPi;
 			}
 
-			Console.WriteLine( "moveX: " + moveX + "\tmoveY: " + moveY );
-
 			Mouse.SetPosition( halfWidth, halfHeight );
-
-			camera.Update( cameraPosition, cameraTarget, cameraUpVector, lookAngleX, lookAngleY );
-			//Console.WriteLine(cameraPosition + " " + cameraTarget);
-			//camera.Update(cameraPosition, cameraTarget, Vector3.Up);
 		}
 
 	}

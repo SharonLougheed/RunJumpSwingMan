@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace RunJumpSwingMan.src.Framework {
 
@@ -7,6 +8,26 @@ namespace RunJumpSwingMan.src.Framework {
 	/// An object that exists in a World
 	/// </summary>
 	public abstract class Entity {
+
+		public VertexBuffer VertexBuffer {
+			get;
+			set;
+		}
+
+		public IndexBuffer IndexBuffer {
+			get;
+			set;
+		}
+
+		public BasicEffect BasicEffect {
+			get;
+			set;
+		}
+
+		public int PrimitiveCount {
+			get;
+			set;
+		}
 
 		/// <summary>
 		/// The World that contains this Entity
@@ -62,14 +83,19 @@ namespace RunJumpSwingMan.src.Framework {
 		}
 
 		public Entity() {
+			VertexBuffer = null;
+			IndexBuffer = null;
+			BasicEffect = null;
+			PrimitiveCount = 0;
+
 			Parent = null;
-			Position = new Vector3();
-			Size = new Vector3();
-			Velocity = new Vector3();
+			Position = Vector3.Zero;
+			Size = Vector3.Zero;
+			Velocity = Vector3.Zero;
 
 			Anchored = false;
-			GravityScale = 1f;
-			StaticFriction = .6f;
+			GravityScale = 1.0f;
+			StaticFriction = 0.6f;
 		}
 
 		/// <summary>
@@ -177,9 +203,27 @@ namespace RunJumpSwingMan.src.Framework {
 		/// Fires off the event for colliding with another entity
 		/// </summary>
 		/// <param name="other"></param>
-		internal void OnCollide( Entity other ) {
+		public void OnCollide( Entity other ) {
 			if ( Collide != null ) {
 				Collide( other );
+			}
+		}
+
+		public void Draw( GameTime gameTime, GraphicsDeviceManager graphics, Camera camera ) {
+			BasicEffect.World = Matrix.CreateTranslation( Position );
+			BasicEffect.View = camera.ViewMatrix;
+			BasicEffect.Projection = camera.ProjectionMatrix;
+
+			BasicEffect.VertexColorEnabled = true;
+			BasicEffect.PreferPerPixelLighting = true;
+			BasicEffect.EnableDefaultLighting();
+
+			graphics.GraphicsDevice.SetVertexBuffer( VertexBuffer );
+			graphics.GraphicsDevice.Indices = IndexBuffer;
+
+			foreach ( EffectPass effectPass in BasicEffect.CurrentTechnique.Passes ) {
+				effectPass.Apply();
+				graphics.GraphicsDevice.DrawIndexedPrimitives( PrimitiveType.TriangleList, 0, 0, PrimitiveCount );
 			}
 		}
 

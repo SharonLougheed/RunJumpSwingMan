@@ -30,9 +30,9 @@ namespace RunJumpSwingMan.src.Framework {
 		/// <param name="v">The Vector3 to take the projection of</param>
 		/// <param name="norm">The normalized direction of the normal of the plane</param>
 		/// <returns></returns>
-		public static Vector3 PerpendicularProjection(Vector3 v, Vector3 norm) {
+		public static Vector3 PerpendicularProjection( Vector3 v, Vector3 norm ) {
 			//the projection of v on norm
-			Vector3 vPara = Vector3.Dot(v, norm) * norm;
+			Vector3 vPara = Vector3.Dot( v, norm ) * norm;
 			return v - vPara;
 		}
 
@@ -63,17 +63,13 @@ namespace RunJumpSwingMan.src.Framework {
 		/// <param name="acceleration"></param>
 		/// <param name="time"></param>
 		/// <returns></returns>
-		public static float KinematicDistance(float speed1, float acceleration, float time) {
-			return (speed1 + .5f * acceleration * time) * time;
-		}
+		public static float KinematicDistance( float speed1, float acceleration, float time ) => ( speed1 + .5f * acceleration * time ) * time;
 
 		/// <summary>
 		/// Applies the kinematic equation for final speed as a function of initial speed, acceleration, and time
 		/// </summary>
 		/// <returns></returns>
-		public static float KinematicSpeed(float speed1, float acceleration, float time) {
-			return speed1 + acceleration * time;
-		}
+		public static float KinematicSpeed( float speed1, float acceleration, float time ) => speed1 + acceleration * time;
 
 		/// <summary>
 		/// Applies the kinematic equation for distance as a function of velocity, acceleration, and time for Vector3's
@@ -82,17 +78,14 @@ namespace RunJumpSwingMan.src.Framework {
 		/// <param name="acceleration"></param>
 		/// <param name="time"></param>
 		/// <returns></returns>
-		public static Vector3 KinematicDistance(Vector3 velocity1, Vector3 acceleration, float time) {
-			return (velocity1 + .5f * acceleration * time) * time;
-		}
+		public static Vector3 KinematicDistance( Vector3 velocity1, Vector3 acceleration, float time ) => ( velocity1 + .5f * acceleration * time ) * time;
 
 		/// <summary>
 		/// Applies the kinematic equation for final speed as a function of initial speed, acceleration, and time
 		/// </summary>
 		/// <returns></returns>
-		public static Vector3 KinematicSpeed(Vector3 velocity1, Vector3 acceleration, float time) {
-			return velocity1 + acceleration * time;
-		}
+		public static Vector3 KinematicSpeed( Vector3 velocity1, Vector3 acceleration, float time ) => velocity1 + acceleration * time;
+
 	}
 
 }

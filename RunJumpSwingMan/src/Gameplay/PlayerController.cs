@@ -7,14 +7,13 @@ namespace RunJumpSwingMan.src.Gameplay {
 
 	public class PlayerController {
 
+		private float maxSwingLength;
+		private Vector3? swingPoint;
+
 		public Player Subject {
 			get;
 			internal set;
 		}
-
-		private float maxSwingLength;
-
-		private Vector3? swingPoint;
 
 		public float MouseSensitivity {
 			get;
@@ -22,10 +21,10 @@ namespace RunJumpSwingMan.src.Gameplay {
 		}
 
 		public PlayerController( Player sub ) {
-			Subject = sub;
 			maxSwingLength = 20;
-			MouseSensitivity = 10f;
 			swingPoint = null;
+			MouseSensitivity = 10f;
+			Subject = sub;
 		}
 
 		public void Update( GameTime time ) {
@@ -85,7 +84,6 @@ namespace RunJumpSwingMan.src.Gameplay {
 		/// </summary>
 		/// <param name="time">The current time of the game</param>
 		public void MovePlayer( GameTime time ) {
-
 			//get keyboard movement input
 			Vector2 wasdInput = Input.GetWASDVector( Input.CurrentKeyboard );
 

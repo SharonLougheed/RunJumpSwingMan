@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RunJumpSwingMan {
+namespace RunJumpSwingMan.src {
 
 	/// <summary>
 	/// The main class.
@@ -11,9 +11,10 @@ namespace RunJumpSwingMan {
 		/// The main entry point for the application.
 		/// </summary>
 		[STAThread]
-		static void Main() {
-			using ( var game = new RunJumpSwingMan() )
-				game.Run(); 
+		private static void Main() {
+			using ( var game = new RunJumpSwingMan() ) {
+				game.Run();
+			}
 		}
 
 	}

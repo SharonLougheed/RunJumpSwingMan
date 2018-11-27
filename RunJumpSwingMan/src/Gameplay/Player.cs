@@ -19,9 +19,12 @@ namespace RunJumpSwingMan.src.Gameplay {
 		}
 
 		public PlayerController Controller {
-			get { return _controller; }
+			get => _controller;
 			set {
-				if (_controller != null) _controller.Subject = null;
+				if ( _controller != null ) {
+					_controller.Subject = null;
+				}
+
 				_controller = value;
 				value.Subject = this;
 			}
@@ -50,7 +53,7 @@ namespace RunJumpSwingMan.src.Gameplay {
 		}
 
 		public override void Update( GameTime time ) {
-			base.Update(time);
+			base.Update( time );
 			Controller.Update( time );
 		}
 
