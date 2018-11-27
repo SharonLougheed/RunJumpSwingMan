@@ -73,11 +73,11 @@ namespace RunJumpSwingMan.src {
 
 			Block block2 = new Block {
 				Position = new Vector3( 0.0f, -11.0f, 0.0f ),
-				Size = new Vector3( 10.0f, 10.0f, 10.0f )
+				Size = new Vector3( 100.0f, 10.0f, 100.0f )
 			};
 			world.AddEntity( block2 );
 
-			float testingDistance = 10.0f;
+			float testingDistance = 5.0f;
 
 			Block cube1 = new Block() {
 				Position = testingDistance * Vector3.UnitZ
@@ -173,7 +173,7 @@ namespace RunJumpSwingMan.src {
 		/// </summary>
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw( GameTime gameTime ) {
-			GraphicsDevice.Clear( Color.Beige );
+			GraphicsDevice.Clear( Color.LightCoral );
 
 			camera.Update( player.Position, cameraYaw, cameraPitch, cameraRoll, aspectRatio );
 
@@ -303,14 +303,14 @@ namespace RunJumpSwingMan.src {
 			int halfHeight = graphics.PreferredBackBufferHeight / 2;
 
 			int moveX = currentMouseState.X - halfWidth;
-			float newCameraYaw = cameraYaw + moveX * rotationSpeed;
+			float newCameraYaw = cameraYaw - moveX * rotationSpeed;
 			if ( maxXRotation >= MathHelper.TwoPi || ( newCameraYaw >= -maxXRotation && newCameraYaw <= maxXRotation ) ) {
 				cameraYaw = newCameraYaw;
 				cameraYaw = cameraYaw % MathHelper.TwoPi;
 			}
 
 			int moveY = currentMouseState.Y - halfHeight;
-			float newCameraPitch = cameraPitch + moveY * rotationSpeed;
+			float newCameraPitch = cameraPitch - moveY * rotationSpeed;
 			if ( maxYRotation >= MathHelper.TwoPi || ( newCameraPitch >= -maxYRotation && newCameraPitch <= maxYRotation ) ) {
 				cameraPitch = newCameraPitch;
 				cameraPitch = cameraPitch % MathHelper.TwoPi;
