@@ -16,10 +16,6 @@ namespace RunJumpSwingMan.src {
 		private SpriteBatch spriteBatch;
 
 		private Camera camera;
-		private Vector3 cameraPosition;
-		private float cameraYaw;
-		private float cameraPitch;
-		private float cameraRoll;
 		private float aspectRatio;
 		private readonly float rotationSpeed = 0.01f;
 		private readonly float maxXRotation = 2.0f * ( float )Math.PI; // radians
@@ -50,10 +46,6 @@ namespace RunJumpSwingMan.src {
 		/// </summary>
 		protected override void Initialize() {
 			camera = new Camera();
-			cameraPosition = Vector3.Zero;
-			cameraYaw = 0.0f;
-			cameraPitch = 0.0f;
-			cameraRoll = 0.0f;
 			aspectRatio = graphics.GraphicsDevice.Viewport.Width / graphics.GraphicsDevice.Viewport.Height;
 
 			Input.MouseLocked = true;
@@ -137,7 +129,7 @@ namespace RunJumpSwingMan.src {
 				entity.VertexBuffer = Shapes.IndexedVertexBufferCube( graphics, Color.SkyBlue );
 				entity.IndexBuffer = Shapes.IndexBufferCube( graphics );
 				entity.PrimitiveCount = Shapes.PrimitiveCountCube();
-				entity.BasicEffect = BasicEffect();
+				entity.BasicEffect = new BasicEffect( graphics.GraphicsDevice );
 			}
 
 			InitContentOfSpike();
@@ -175,7 +167,7 @@ namespace RunJumpSwingMan.src {
 		protected override void Draw( GameTime gameTime ) {
 			GraphicsDevice.Clear( Color.LightCoral );
 
-			camera.Update( player.Position, cameraYaw, cameraPitch, cameraRoll, aspectRatio );
+			camera.Update( player.Position, aspectRatio );
 
 			RasterizerState rasterizerState = new RasterizerState {
 				//CullMode = CullMode.CullCounterClockwiseFace
@@ -197,10 +189,6 @@ namespace RunJumpSwingMan.src {
 			DrawImage( crosshairTexture, new Rectangle( halfWidth - 8, halfHeight - 8, 17, 17 ), Color.White );
 
 			base.Draw( gameTime );
-		}
-
-		public BasicEffect BasicEffect() {
-			return new BasicEffect( graphics.GraphicsDevice );
 		}
 
 		/*
@@ -303,17 +291,17 @@ namespace RunJumpSwingMan.src {
 			int halfHeight = graphics.PreferredBackBufferHeight / 2;
 
 			int moveX = currentMouseState.X - halfWidth;
-			float newCameraYaw = cameraYaw - moveX * rotationSpeed;
+			float newCameraYaw = camera.Yaw - moveX * rotationSpeed;
 			if ( maxXRotation >= MathHelper.TwoPi || ( newCameraYaw >= -maxXRotation && newCameraYaw <= maxXRotation ) ) {
-				cameraYaw = newCameraYaw;
-				cameraYaw = cameraYaw % MathHelper.TwoPi;
+				camera.Yaw = newCameraYaw;
+				camera.Yaw = camera.Yaw % MathHelper.TwoPi;
 			}
 
 			int moveY = currentMouseState.Y - halfHeight;
-			float newCameraPitch = cameraPitch - moveY * rotationSpeed;
+			float newCameraPitch = camera.Pitch - moveY * rotationSpeed;
 			if ( maxYRotation >= MathHelper.TwoPi || ( newCameraPitch >= -maxYRotation && newCameraPitch <= maxYRotation ) ) {
-				cameraPitch = newCameraPitch;
-				cameraPitch = cameraPitch % MathHelper.TwoPi;
+				camera.Pitch = newCameraPitch;
+				camera.Pitch = camera.Pitch % MathHelper.TwoPi;
 			}
 
 			Mouse.SetPosition( halfWidth, halfHeight );
