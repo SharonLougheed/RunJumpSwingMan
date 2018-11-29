@@ -210,7 +210,7 @@ namespace RunJumpSwingMan.src.Framework {
 		}
 
 		public void Draw( GameTime gameTime, GraphicsDeviceManager graphics, Camera camera ) {
-			BasicEffect.World = Matrix.CreateTranslation( Position );
+			BasicEffect.World = Matrix.CreateScale( Size.X, Size.Y, Size.Z ) * Matrix.CreateTranslation( Position );
 			BasicEffect.View = camera.ViewMatrix;
 			BasicEffect.Projection = camera.ProjectionMatrix;
 

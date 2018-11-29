@@ -58,41 +58,47 @@ namespace RunJumpSwingMan.src {
 			};
 			world.AddEntity( player );
 
-			Block block = new Block {
-				Position = new Vector3( 0.0f, -10.0f, 0.0f )
-			};
-			world.AddEntity( block );
+			//Block block = new Block {
+			//	Position = new Vector3( 0.0f, -10.0f, 0.0f )
+			//};
+			//world.AddEntity( block );
 
 			Block block2 = new Block {
-				Position = new Vector3( 0.0f, -11.0f, 0.0f ),
-				Size = new Vector3( 100.0f, 10.0f, 100.0f )
+				Position = new Vector3( 0.0f, -20.0f, 0.0f ),
+				Size = new Vector3( 100.0f, 1.0f, 100.0f )
 			};
 			world.AddEntity( block2 );
 
 			float testingDistance = 5.0f;
 
 			Block cube1 = new Block() {
-				Position = testingDistance * Vector3.UnitZ
+				Position = testingDistance * Vector3.UnitZ,
+				Size = Vector3.One
 			};
 
 			Block cube2 = new Block() {
-				Position = -testingDistance * Vector3.UnitZ
+				Position = -testingDistance * Vector3.UnitZ,
+				Size = Vector3.One
 			};
 
 			Block cube3 = new Block() {
-				Position = testingDistance * Vector3.UnitX
+				Position = testingDistance * Vector3.UnitX,
+				Size = Vector3.One
 			};
 
 			Block cube4 = new Block() {
-				Position = -testingDistance * Vector3.UnitX
+				Position = -testingDistance * Vector3.UnitX,
+				Size = Vector3.One
 			};
 
 			Block cube5 = new Block() {
-				Position = testingDistance * Vector3.UnitY
+				Position = testingDistance * Vector3.UnitY,
+				Size = Vector3.One
 			};
 
 			Block cube6 = new Block() {
-				Position = -testingDistance * Vector3.UnitY
+				Position = -testingDistance * Vector3.UnitY,
+				Size = Vector3.One
 			};
 
 			world.AddEntity( cube1 );

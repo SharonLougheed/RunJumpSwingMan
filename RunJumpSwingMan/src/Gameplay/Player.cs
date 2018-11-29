@@ -45,7 +45,7 @@ namespace RunJumpSwingMan.src.Gameplay {
 		public Vector3 LookVector => _lookVector;
 
 		public Player() : base() {
-			Size = new Vector3( 2, 4, 2 );
+			Size = new Vector3( 0.5f, 1.0f, 0.5f );
 			Controller = new PlayerController( this );
 			MaxMoveSpeed = 10;
 			JumpSpeed = 8;
