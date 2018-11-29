@@ -9,6 +9,7 @@ namespace RunJumpSwingMan.src {
 		public static VertexBuffer IndexedVertexBufferCube( GraphicsDeviceManager graphics, Color color ) {
 			VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[ 8 ];
 			float unitAxisLength = ( float )Math.Sqrt( 1.0 / 3.0 );
+			/*
 			vertices[ 0 ] = new VertexPositionNormalTexture( new Vector3( -0.5f, -0.5f, 0.5f ), new Vector3( -unitAxisLength, -unitAxisLength, unitAxisLength ), new Vector2( 1.0f, 1.0f ) );
 			vertices[ 1 ] = new VertexPositionNormalTexture( new Vector3( 0.5f, -0.5f, 0.5f ), new Vector3( unitAxisLength, -unitAxisLength, unitAxisLength ), new Vector2( 1.0f, 1.0f ) );
 			vertices[ 2 ] = new VertexPositionNormalTexture( new Vector3( 0.5f, -0.5f, -0.5f ), new Vector3( unitAxisLength, -unitAxisLength, -unitAxisLength ), new Vector2( 1.0f, 1.0f ) );
@@ -17,6 +18,15 @@ namespace RunJumpSwingMan.src {
 			vertices[ 5 ] = new VertexPositionNormalTexture( new Vector3( 0.5f, 0.5f, 0.5f ), new Vector3( unitAxisLength, unitAxisLength, unitAxisLength ), new Vector2( 1.0f, 1.0f ) );
 			vertices[ 6 ] = new VertexPositionNormalTexture( new Vector3( 0.5f, 0.5f, -0.5f ), new Vector3( unitAxisLength, unitAxisLength, -unitAxisLength ), new Vector2( 1.0f, 1.0f ) );
 			vertices[ 7 ] = new VertexPositionNormalTexture( new Vector3( -0.5f, 0.5f, -0.5f ), new Vector3( -unitAxisLength, unitAxisLength, -unitAxisLength ), new Vector2( 1.0f, 1.0f ) );
+			*/
+			vertices[0] = new VertexPositionNormalTexture(new Vector3(-0.5f, -0.5f, 0.5f), new Vector3(unitAxisLength, unitAxisLength, -unitAxisLength), new Vector2(1.0f, 1.0f));
+			vertices[1] = new VertexPositionNormalTexture(new Vector3(0.5f, -0.5f, 0.5f), new Vector3(-unitAxisLength, unitAxisLength, -unitAxisLength), new Vector2(1.0f, 1.0f));
+			vertices[2] = new VertexPositionNormalTexture(new Vector3(0.5f, -0.5f, -0.5f), new Vector3(-unitAxisLength, unitAxisLength, unitAxisLength), new Vector2(1.0f, 1.0f));
+			vertices[3] = new VertexPositionNormalTexture(new Vector3(-0.5f, -0.5f, -0.5f), new Vector3(unitAxisLength, unitAxisLength, unitAxisLength), new Vector2(1.0f, 1.0f));
+			vertices[4] = new VertexPositionNormalTexture(new Vector3(-0.5f, 0.5f, 0.5f), new Vector3(unitAxisLength, -unitAxisLength, -unitAxisLength), new Vector2(1.0f, 1.0f));
+			vertices[5] = new VertexPositionNormalTexture(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(-unitAxisLength, -unitAxisLength, -unitAxisLength), new Vector2(1.0f, 1.0f));
+			vertices[6] = new VertexPositionNormalTexture(new Vector3(0.5f, 0.5f, -0.5f), new Vector3(-unitAxisLength, -unitAxisLength, unitAxisLength), new Vector2(1.0f, 1.0f));
+			vertices[7] = new VertexPositionNormalTexture(new Vector3(-0.5f, 0.5f, -0.5f), new Vector3(unitAxisLength, -unitAxisLength, unitAxisLength), new Vector2(1.0f, 1.0f));
 
 			VertexBuffer vertexBuffer = new VertexBuffer( graphics.GraphicsDevice, typeof( VertexPositionNormalTexture ), vertices.Length, BufferUsage.WriteOnly );
 			vertexBuffer.SetData<VertexPositionNormalTexture>( vertices );
@@ -26,6 +36,7 @@ namespace RunJumpSwingMan.src {
 
 		public static IndexBuffer IndexBufferCube( GraphicsDeviceManager graphics ) {
 			short[] indices = new short[ 36 ];
+			/*
 			indices[ 0 ] = 0;
 			indices[ 1 ] = 3;
 			indices[ 2 ] = 2;
@@ -62,6 +73,44 @@ namespace RunJumpSwingMan.src {
 			indices[ 33 ] = 4;
 			indices[ 34 ] = 7;
 			indices[ 35 ] = 3;
+			*/
+
+			indices[0] = 2;
+			indices[1] = 3;
+			indices[2] = 0;
+			indices[3] = 0;
+			indices[4] = 1;
+			indices[5] = 2;
+			indices[6] = 6;
+			indices[7] = 5;
+			indices[8] = 4;
+			indices[9] = 4;
+			indices[10] = 7;
+			indices[11] = 6;
+			indices[12] = 5;
+			indices[13] = 1;
+			indices[14] = 0;
+			indices[15] = 0;
+			indices[16] = 4;
+			indices[17] = 5;
+			indices[18] = 6;
+			indices[19] = 2;
+			indices[20] = 1;
+			indices[21] = 1;
+			indices[22] = 5;
+			indices[23] = 6;
+			indices[24] = 7;
+			indices[25] = 3;
+			indices[26] = 2;
+			indices[27] = 2;
+			indices[28] = 6;
+			indices[29] = 7;
+			indices[30] = 4;
+			indices[31] = 0;
+			indices[32] = 3;
+			indices[33] = 3;
+			indices[34] = 7;
+			indices[35] = 4;
 
 			IndexBuffer indexBuffer = new IndexBuffer( graphics.GraphicsDevice, typeof( short ), indices.Length, BufferUsage.WriteOnly );
 			indexBuffer.SetData<short>( indices );
