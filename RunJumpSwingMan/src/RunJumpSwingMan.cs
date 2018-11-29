@@ -153,7 +153,7 @@ namespace RunJumpSwingMan.src {
 				Exit();
 			}
 
-			UpdateCameraAngles();
+			//UpdateCameraAngles();
 			Input.Update();
 			world.Update( gameTime );
 
@@ -167,7 +167,7 @@ namespace RunJumpSwingMan.src {
 		protected override void Draw( GameTime gameTime ) {
 			GraphicsDevice.Clear( Color.LightCoral );
 
-			camera.Update( player.Position, aspectRatio );
+			camera.Update( player.Position, player.LookAngle.X, player.LookAngle.Y, 0.0f, aspectRatio );
 
 			RasterizerState rasterizerState = new RasterizerState {
 				//CullMode = CullMode.CullCounterClockwiseFace
@@ -277,35 +277,33 @@ namespace RunJumpSwingMan.src {
 			DrawModel( model );
 		}
 
-		/*
-		====================
-		UpdateCamera()
+		///*
+		//====================
+		//UpdateCamera()
 
-		  Updates camera position based on mouse movement and passes information to the camera.
-		  This needs to be done BEFORE drawing anything to camera.
-		====================
-		*/
-		private void UpdateCameraAngles() {
-			MouseState currentMouseState = Mouse.GetState();
-			int halfWidth = graphics.PreferredBackBufferWidth / 2;
-			int halfHeight = graphics.PreferredBackBufferHeight / 2;
+		//  Updates camera position based on mouse movement and passes information to the camera.
+		//  This needs to be done BEFORE drawing anything to camera.
+		//====================
+		//*/
+		//private void UpdateCameraAngles() {
+		//	MouseState currentMouseState = Mouse.GetState();
+		//	int halfWidth = graphics.PreferredBackBufferWidth / 2;
+		//	int halfHeight = graphics.PreferredBackBufferHeight / 2;
 
-			int moveX = currentMouseState.X - halfWidth;
-			float newCameraYaw = camera.Yaw - moveX * rotationSpeed;
-			if ( maxXRotation >= MathHelper.TwoPi || ( newCameraYaw >= -maxXRotation && newCameraYaw <= maxXRotation ) ) {
-				camera.Yaw = newCameraYaw;
-				camera.Yaw = camera.Yaw % MathHelper.TwoPi;
-			}
+		//	int moveX = currentMouseState.X - halfWidth;
+		//	float newCameraYaw = camera.Yaw - moveX * rotationSpeed;
+		//	if ( maxXRotation >= MathHelper.TwoPi || ( newCameraYaw >= -maxXRotation && newCameraYaw <= maxXRotation ) ) {
+		//		camera.Yaw = newCameraYaw;
+		//		camera.Yaw = camera.Yaw % MathHelper.TwoPi;
+		//	}
 
-			int moveY = currentMouseState.Y - halfHeight;
-			float newCameraPitch = camera.Pitch - moveY * rotationSpeed;
-			if ( maxYRotation >= MathHelper.TwoPi || ( newCameraPitch >= -maxYRotation && newCameraPitch <= maxYRotation ) ) {
-				camera.Pitch = newCameraPitch;
-				camera.Pitch = camera.Pitch % MathHelper.TwoPi;
-			}
-
-			Mouse.SetPosition( halfWidth, halfHeight );
-		}
+		//	int moveY = currentMouseState.Y - halfHeight;
+		//	float newCameraPitch = camera.Pitch - moveY * rotationSpeed;
+		//	if ( maxYRotation >= MathHelper.TwoPi || ( newCameraPitch >= -maxYRotation && newCameraPitch <= maxYRotation ) ) {
+		//		camera.Pitch = newCameraPitch;
+		//		camera.Pitch = camera.Pitch % MathHelper.TwoPi;
+		//	}
+		//}
 
 	}
 
