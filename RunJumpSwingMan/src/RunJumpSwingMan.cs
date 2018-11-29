@@ -62,57 +62,58 @@ namespace RunJumpSwingMan.src {
 			//};
 			//world.AddEntity( block );
 
-			Block block2 = new Block {
-				Position = new Vector3( 0.0f, -5.0f, 0.0f ),
-				Size = new Vector3( 100.0f, 1.0f, 100.0f )
-			};
-			world.AddEntity( block2 );
+			//Block block2 = new Block {
+			//	Position = new Vector3( 0.0f, -5.0f, 0.0f ),
+			//	Size = new Vector3( 100.0f, 1.0f, 100.0f )
+			//};
+			//world.AddEntity( block2 );
 
-			float testingDistance = 5.0f;
+			float halfFloorLength = 50.0f;
 
-			Block cube1 = new Block() {
-				Position = testingDistance * Vector3.UnitZ,
-				Size = Vector3.One
-			};
-
-			Block cube2 = new Block() {
-				Position = -testingDistance * Vector3.UnitZ,
-				Size = Vector3.One
+			Block floor = new Block() {
+				//Position = halfFloorLength * Vector3.UnitZ,
+				Position = -halfFloorLength * Vector3.UnitY,
+				Size = new Vector3( 2 * halfFloorLength, 0.1f, 2 * halfFloorLength )
 			};
 
-			Block cube3 = new Block() {
-				Position = testingDistance * Vector3.UnitX,
-				Size = Vector3.One
+			Block ceiling = new Block() {
+				Position = halfFloorLength * Vector3.UnitY,
+				Size = new Vector3( 2 * halfFloorLength, 0.1f, 2 * halfFloorLength )
 			};
 
-			Block cube4 = new Block() {
-				Position = -testingDistance * Vector3.UnitX,
-				Size = Vector3.One
+			Block wall1 = new Block() {
+				Position = -halfFloorLength * Vector3.UnitX,
+				Size = new Vector3( 0.1f , 2 * halfFloorLength, 2 * halfFloorLength )
 			};
 
-			Block cube5 = new Block() {
-				Position = testingDistance * Vector3.UnitY,
-				Size = Vector3.One
+			Block wall2 = new Block() {
+				Position = halfFloorLength * Vector3.UnitX,
+				Size = new Vector3( 0.1f, 2 * halfFloorLength, 2 * halfFloorLength )
 			};
 
-			Block cube6 = new Block() {
-				Position = -testingDistance * Vector3.UnitY,
-				Size = Vector3.One
+			Block wall3 = new Block() {
+				Position = -halfFloorLength * Vector3.UnitZ,
+				Size = new Vector3( 2 * halfFloorLength, 2 * halfFloorLength, 0.1f )
 			};
 
-			world.AddEntity( cube1 );
-			world.AddEntity( cube2 );
-			world.AddEntity( cube3 );
-			world.AddEntity( cube4 );
-			world.AddEntity( cube5 );
-			world.AddEntity( cube6 );
+			Block wall4 = new Block() {
+				Position = halfFloorLength * Vector3.UnitZ,
+				Size = new Vector3( 2 * halfFloorLength, 2 * halfFloorLength, 0.1f )
+			};
+
+			world.AddEntity( floor );
+			world.AddEntity( ceiling );
+			world.AddEntity( wall1 );
+			world.AddEntity( wall2 );
+			world.AddEntity( wall3 );
+			world.AddEntity( wall4 );
 
 			world.ProcessEntityQueues();
 
 			IsMouseVisible = false;
 
-			lightDiffuseColor = new Vector3( 0.1f, 1.0f, 0.1f ); // a white light
-			lightDirection = new Vector3( 0.1f, 0.1f, -0.5f );  // some direction of light
+			lightDiffuseColor = new Vector3( 1.0f, 1.0f, 1.0f ); // a white light
+			lightDirection = new Vector3( 0.33f, 0.66f, -0.1f );  // some direction of light
 			lightSpecularColor = new Vector3( 1.0f, 1.0f, 1.0f ); // with white highlights
 
 			base.Initialize();
@@ -123,6 +124,13 @@ namespace RunJumpSwingMan.src {
 		/// all of your content.
 		/// </summary>
 		protected override void LoadContent() {
+
+			RasterizerState rasterizerState = new RasterizerState {
+				CullMode = CullMode.CullCounterClockwiseFace
+				//CullMode = CullMode.None
+			};
+			graphics.GraphicsDevice.RasterizerState = rasterizerState;
+
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch( GraphicsDevice );
 
@@ -136,7 +144,7 @@ namespace RunJumpSwingMan.src {
 				entity.BasicEffect = new BasicEffect( graphics.GraphicsDevice );
 			}
 
-			InitContentOfSpike();
+			//InitContentOfSpike();
 		}
 
 		/// <summary>
@@ -172,12 +180,6 @@ namespace RunJumpSwingMan.src {
 			GraphicsDevice.Clear( Color.LightCoral );
 
 			camera.Update( player.Position, player.LookAngle.X, player.LookAngle.Y, 0.0f, aspectRatio );
-
-			RasterizerState rasterizerState = new RasterizerState {
-				CullMode = CullMode.CullCounterClockwiseFace
-				//CullMode = CullMode.None
-			};
-			graphics.GraphicsDevice.RasterizerState = rasterizerState;
 
 			foreach ( Entity entity in world.Entities ) {
 				entity.Draw( gameTime, graphics, camera, lightDiffuseColor, lightDirection, lightSpecularColor );

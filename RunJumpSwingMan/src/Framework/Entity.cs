@@ -52,11 +52,6 @@ namespace RunJumpSwingMan.src.Framework {
 			set;
 		}
 
-		public Vector3 Orientation {
-			get;
-			set;
-		}
-
 		public float StaticFriction {
 			get;
 			set;
@@ -97,7 +92,6 @@ namespace RunJumpSwingMan.src.Framework {
 			Position = Vector3.Zero;
 			Size = Vector3.One;
 			Velocity = Vector3.Zero;
-			Orientation = Vector3.Zero;
 
 			Anchored = false;
 			GravityScale = 1.0f;
@@ -222,7 +216,7 @@ namespace RunJumpSwingMan.src.Framework {
 			BasicEffect.Projection = camera.ProjectionMatrix;
 
 			//BasicEffect.VertexColorEnabled = true;
-			BasicEffect.PreferPerPixelLighting = true;
+			//BasicEffect.PreferPerPixelLighting = true;
 
 			BasicEffect.LightingEnabled = true;
 			BasicEffect.DirectionalLight0.DiffuseColor = diffuseColor;
