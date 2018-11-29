@@ -12,7 +12,15 @@ namespace RunJumpSwingMan.src {
 	/// </summary>
 	public class RunJumpSwingMan : Game {
 
-		private GraphicsDeviceManager graphics;
+        Skybox skybox;
+        Matrix wd = Matrix.Identity;
+        Matrix view = Matrix.CreateLookAt(new Vector3(20, 0, 0), new Vector3(0, 0, 0), Vector3.UnitY);
+        Matrix projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), 800f / 600f, 0.1f, 100f);
+        Vector3 cameraPosition;
+        float angle = 0;
+        float distance = 20;
+
+        private GraphicsDeviceManager graphics;
 		private SpriteBatch spriteBatch;
 
 		private Camera camera;
@@ -127,11 +135,12 @@ namespace RunJumpSwingMan.src {
 		protected override void LoadContent() {
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch( GraphicsDevice );
+            skybox = new Skybox("Skyboxes/Sunset", Content);
 
-			crosshairTexture = Content.Load<Texture2D>( "textures/crosshair" );
+            crosshairTexture = Content.Load<Texture2D>( "textures/crosshair" );
 			spikeModel = Content.Load<Model>( "models/spike" );
 
-			foreach ( Entity entity in world.Entities ) {
+            foreach ( Entity entity in world.Entities ) {
 				entity.VertexBuffer = Shapes.IndexedVertexBufferCube( graphics, Color.SkyBlue );
 				entity.IndexBuffer = Shapes.IndexBufferCube( graphics );
 				entity.PrimitiveCount = Shapes.PrimitiveCountCube();
@@ -172,8 +181,13 @@ namespace RunJumpSwingMan.src {
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw( GameTime gameTime ) {
 			GraphicsDevice.Clear( Color.LightCoral );
+            RasterizerState oRasterizerState = new RasterizerState();
+            oRasterizerState.CullMode = CullMode.CullClockwiseFace;
+            skybox.Draw(view, projection, cameraPosition);
 
-			camera.Update( player.Position, player.LookAngle.X, player.LookAngle.Y, 0.0f, aspectRatio );
+            graphics.GraphicsDevice.RasterizerState = oRasterizerState;
+
+            camera.Update( player.Position, player.LookAngle.X, player.LookAngle.Y, 0.0f, aspectRatio );
 
 			RasterizerState rasterizerState = new RasterizerState {
 				//CullMode = CullMode.CullCounterClockwiseFace
@@ -194,7 +208,7 @@ namespace RunJumpSwingMan.src {
 			int halfHeight = graphics.PreferredBackBufferHeight / 2;
 			DrawImage( crosshairTexture, new Rectangle( halfWidth - 8, halfHeight - 8, 17, 17 ), Color.White );
 
-			base.Draw( gameTime );
+            base.Draw( gameTime );
 		}
 
 		/*
@@ -227,6 +241,7 @@ namespace RunJumpSwingMan.src {
 				mesh.Draw();
 			}
 		}
+
 
 		/*
 		====================
