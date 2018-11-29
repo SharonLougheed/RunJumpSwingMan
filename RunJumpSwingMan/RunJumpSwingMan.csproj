@@ -115,6 +115,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="app.manifest" />
+    <Content Include="Content\RunJumpSwingMan\skyboxes\Skybox.fx" />
+    <Content Include="Content\RunJumpSwingMan\skyboxes\Sunset.dds" />
     <Content Include="Content\RunJumpSwingMan\textures\crosshair.png" />
     <Content Include="Content\RunJumpSwingMan\out\DesktopGL\textures\checkerboard.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -126,6 +128,7 @@
     <Content Include="Content\RunJumpSwingMan\out\DesktopGL\textures\crosshair.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Content\RunJumpSwingMan\models\cube.fbx" />
     <None Include="Content\RunJumpSwingMan\out\DesktopGL\Skyboxes\cube.xnb" />
     <None Include="Content\RunJumpSwingMan\out\DesktopGL\Skyboxes\Sunset.xnb" />
   </ItemGroup>

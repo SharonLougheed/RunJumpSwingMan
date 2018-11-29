@@ -135,7 +135,7 @@ namespace RunJumpSwingMan.src {
 		protected override void LoadContent() {
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch( GraphicsDevice );
-            skybox = new Skybox("Skyboxes/Sunset", Content);
+            skybox = new Skybox("skyboxes/Sunset", Content);
 
             crosshairTexture = Content.Load<Texture2D>( "textures/crosshair" );
 			spikeModel = Content.Load<Model>( "models/spike" );
@@ -183,11 +183,12 @@ namespace RunJumpSwingMan.src {
 			GraphicsDevice.Clear( Color.LightCoral );
             RasterizerState oRasterizerState = new RasterizerState();
             oRasterizerState.CullMode = CullMode.CullClockwiseFace;
-            skybox.Draw(view, projection, cameraPosition);
 
             graphics.GraphicsDevice.RasterizerState = oRasterizerState;
 
             camera.Update( player.Position, player.LookAngle.X, player.LookAngle.Y, 0.0f, aspectRatio );
+
+			skybox.Draw(camera.ViewMatrix, camera.ProjectionMatrix, player.Position);
 
 			RasterizerState rasterizerState = new RasterizerState {
 				//CullMode = CullMode.CullCounterClockwiseFace
