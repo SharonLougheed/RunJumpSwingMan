@@ -27,10 +27,9 @@ namespace RunJumpSwingMan.src {
 		private World world;
 		private Player player;
 
-		private readonly Vector3[] lightDiffuseColor = new Vector3[ 3 ];
-		private readonly Vector3[] lightDirection = new Vector3[ 3 ];
-		private readonly Vector3[] lightSpecularColor = new Vector3[ 3 ];
-		private readonly bool[] directionalLightEnabled = { false, false, false };
+		private Vector3 lightDiffuseColor;
+		private Vector3 lightDirection;
+		private Vector3 lightSpecularColor;
 
 		public RunJumpSwingMan() {
 			graphics = new GraphicsDeviceManager( this );
@@ -64,7 +63,7 @@ namespace RunJumpSwingMan.src {
 			//world.AddEntity( block );
 
 			Block block2 = new Block {
-				Position = new Vector3( 0.0f, -20.0f, 0.0f ),
+				Position = new Vector3( 0.0f, -5.0f, 0.0f ),
 				Size = new Vector3( 100.0f, 1.0f, 100.0f )
 			};
 			world.AddEntity( block2 );
@@ -112,10 +111,9 @@ namespace RunJumpSwingMan.src {
 
 			IsMouseVisible = false;
 
-			lightDiffuseColor[ 0 ] = new Vector3( 1.0f, 1.0f, 1.0f ); // a white light
-			lightDirection[ 0 ] = new Vector3( 0.5f, 0.75f, -0.5f );  // some direction of light
-			lightSpecularColor[ 0 ] = new Vector3( 1.0f, 1.0f, 1.0f ); // with white highlights
-			directionalLightEnabled[ 0 ] = true;
+			lightDiffuseColor = new Vector3( 0.1f, 1.0f, 0.1f ); // a white light
+			lightDirection = new Vector3( 0.1f, 0.1f, -0.5f );  // some direction of light
+			lightSpecularColor = new Vector3( 1.0f, 1.0f, 1.0f ); // with white highlights
 
 			base.Initialize();
 		}
@@ -176,13 +174,13 @@ namespace RunJumpSwingMan.src {
 			camera.Update( player.Position, player.LookAngle.X, player.LookAngle.Y, 0.0f, aspectRatio );
 
 			RasterizerState rasterizerState = new RasterizerState {
-				//CullMode = CullMode.CullCounterClockwiseFace
-				CullMode = CullMode.None
+				CullMode = CullMode.CullCounterClockwiseFace
+				//CullMode = CullMode.None
 			};
 			graphics.GraphicsDevice.RasterizerState = rasterizerState;
 
 			foreach ( Entity entity in world.Entities ) {
-				entity.Draw( gameTime, graphics, camera );
+				entity.Draw( gameTime, graphics, camera, lightDiffuseColor, lightDirection, lightSpecularColor );
 			}
 
 			//Draw stuff here
@@ -215,10 +213,10 @@ namespace RunJumpSwingMan.src {
 					basicEffect.Projection = camera.ProjectionMatrix;
 
 					basicEffect.LightingEnabled = true;
-					basicEffect.DirectionalLight0.Enabled = directionalLightEnabled[ 0 ];
-					basicEffect.DirectionalLight0.DiffuseColor = lightDiffuseColor[ 0 ];
-					basicEffect.DirectionalLight0.Direction = lightDirection[ 0 ];
-					basicEffect.DirectionalLight0.SpecularColor = lightSpecularColor[ 0 ];
+					basicEffect.DirectionalLight0.Enabled = true;
+					basicEffect.DirectionalLight0.DiffuseColor = lightDiffuseColor;
+					basicEffect.DirectionalLight0.Direction = lightDirection;
+					basicEffect.DirectionalLight0.SpecularColor = lightSpecularColor;
 
 					foreach ( EffectPass pass in basicEffect.CurrentTechnique.Passes ) {
 						pass.Apply();

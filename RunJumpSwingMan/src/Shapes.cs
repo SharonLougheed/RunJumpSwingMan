@@ -7,18 +7,19 @@ namespace RunJumpSwingMan.src {
 	public class Shapes {
 
 		public static VertexBuffer IndexedVertexBufferCube( GraphicsDeviceManager graphics, Color color ) {
-			VertexPositionColor[] vertices = new VertexPositionColor[ 8 ];
-			vertices[ 0 ] = new VertexPositionColor( new Vector3( -0.5f, -0.5f, 0.5f ), color );
-			vertices[ 1 ] = new VertexPositionColor( new Vector3( 0.5f, -0.5f, 0.5f ), color );
-			vertices[ 2 ] = new VertexPositionColor( new Vector3( 0.5f, -0.5f, -0.5f ), color );
-			vertices[ 3 ] = new VertexPositionColor( new Vector3( -0.5f, -0.5f, -0.5f ), color );
-			vertices[ 4 ] = new VertexPositionColor( new Vector3( -0.5f, 0.5f, 0.5f ), color );
-			vertices[ 5 ] = new VertexPositionColor( new Vector3( 0.5f, 0.5f, 0.5f ), color );
-			vertices[ 6 ] = new VertexPositionColor( new Vector3( 0.5f, 0.5f, -0.5f ), color );
-			vertices[ 7 ] = new VertexPositionColor( new Vector3( -0.5f, 0.5f, -0.5f ), color );
+			VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[ 8 ];
+			float unitAxisLength = ( float )Math.Sqrt( 1.0 / 3.0 );
+			vertices[ 0 ] = new VertexPositionNormalTexture( new Vector3( -0.5f, -0.5f, 0.5f ), new Vector3( -unitAxisLength, -unitAxisLength, unitAxisLength ), new Vector2( 1.0f, 1.0f ) );
+			vertices[ 1 ] = new VertexPositionNormalTexture( new Vector3( 0.5f, -0.5f, 0.5f ), new Vector3( unitAxisLength, -unitAxisLength, unitAxisLength ), new Vector2( 1.0f, 1.0f ) );
+			vertices[ 2 ] = new VertexPositionNormalTexture( new Vector3( 0.5f, -0.5f, -0.5f ), new Vector3( unitAxisLength, -unitAxisLength, -unitAxisLength ), new Vector2( 1.0f, 1.0f ) );
+			vertices[ 3 ] = new VertexPositionNormalTexture( new Vector3( -0.5f, -0.5f, -0.5f ), new Vector3( -unitAxisLength, -unitAxisLength, -unitAxisLength ), new Vector2( 1.0f, 1.0f ) );
+			vertices[ 4 ] = new VertexPositionNormalTexture( new Vector3( -0.5f, 0.5f, 0.5f ), new Vector3( -unitAxisLength, unitAxisLength, unitAxisLength ), new Vector2( 1.0f, 1.0f ) );
+			vertices[ 5 ] = new VertexPositionNormalTexture( new Vector3( 0.5f, 0.5f, 0.5f ), new Vector3( unitAxisLength, unitAxisLength, unitAxisLength ), new Vector2( 1.0f, 1.0f ) );
+			vertices[ 6 ] = new VertexPositionNormalTexture( new Vector3( 0.5f, 0.5f, -0.5f ), new Vector3( unitAxisLength, unitAxisLength, -unitAxisLength ), new Vector2( 1.0f, 1.0f ) );
+			vertices[ 7 ] = new VertexPositionNormalTexture( new Vector3( -0.5f, 0.5f, -0.5f ), new Vector3( -unitAxisLength, unitAxisLength, -unitAxisLength ), new Vector2( 1.0f, 1.0f ) );
 
-			VertexBuffer vertexBuffer = new VertexBuffer( graphics.GraphicsDevice, typeof( VertexPositionColor ), vertices.Length, BufferUsage.WriteOnly );
-			vertexBuffer.SetData<VertexPositionColor>( vertices );
+			VertexBuffer vertexBuffer = new VertexBuffer( graphics.GraphicsDevice, typeof( VertexPositionNormalTexture ), vertices.Length, BufferUsage.WriteOnly );
+			vertexBuffer.SetData<VertexPositionNormalTexture>( vertices );
 
 			return vertexBuffer;
 		}

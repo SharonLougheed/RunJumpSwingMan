@@ -52,6 +52,11 @@ namespace RunJumpSwingMan.src.Framework {
 			set;
 		}
 
+		public Vector3 Orientation {
+			get;
+			set;
+		}
+
 		public float StaticFriction {
 			get;
 			set;
@@ -90,8 +95,9 @@ namespace RunJumpSwingMan.src.Framework {
 
 			Parent = null;
 			Position = Vector3.Zero;
-			Size = Vector3.Zero;
+			Size = Vector3.One;
 			Velocity = Vector3.Zero;
+			Orientation = Vector3.Zero;
 
 			Anchored = false;
 			GravityScale = 1.0f;
@@ -209,14 +215,20 @@ namespace RunJumpSwingMan.src.Framework {
 			}
 		}
 
-		public void Draw( GameTime gameTime, GraphicsDeviceManager graphics, Camera camera ) {
+		public void Draw( GameTime gameTime, GraphicsDeviceManager graphics, Camera camera, Vector3 diffuseColor, Vector3 lightDirection, Vector3 specularColor ) {
 			BasicEffect.World = Matrix.CreateScale( Size.X, Size.Y, Size.Z ) * Matrix.CreateTranslation( Position );
+			//BasicEffect.World = Matrix.CreateFromYawPitchRoll( Orientation.Y, Orientation.X, Orientation.Z ) * Matrix.CreateScale( Size.X, Size.Y, Size.Z ) * Matrix.CreateTranslation( Position );
 			BasicEffect.View = camera.ViewMatrix;
 			BasicEffect.Projection = camera.ProjectionMatrix;
 
-			BasicEffect.VertexColorEnabled = true;
+			//BasicEffect.VertexColorEnabled = true;
 			BasicEffect.PreferPerPixelLighting = true;
-			BasicEffect.EnableDefaultLighting();
+
+			BasicEffect.LightingEnabled = true;
+			BasicEffect.DirectionalLight0.DiffuseColor = diffuseColor;
+			BasicEffect.DirectionalLight0.Direction = lightDirection;
+			BasicEffect.DirectionalLight0.Enabled = true;
+			BasicEffect.DirectionalLight0.SpecularColor = specularColor;
 
 			graphics.GraphicsDevice.SetVertexBuffer( VertexBuffer );
 			graphics.GraphicsDevice.Indices = IndexBuffer;

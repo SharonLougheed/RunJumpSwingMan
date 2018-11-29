@@ -43,8 +43,8 @@ namespace RunJumpSwingMan.src {
 		}
 
 		public Camera() {
-			CameraOffset = new Vector3( 0.0f, 2.0f, 0.0f );
-			TargetOffset = new Vector3( 0.0f, 2.0f, -1.0f );
+			CameraOffset = new Vector3( 0.0f, 0.0f, 0.0f );
+			TargetOffset = new Vector3( 0.0f, 0.0f, -1.0f );
 			ViewMatrix = Matrix.Identity;
 			ProjectionMatrix = Matrix.Identity;
 			ViewAngle = MathHelper.PiOver4;
