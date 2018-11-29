@@ -31,6 +31,8 @@ namespace RunJumpSwingMan.src {
 		private Vector3 lightDirection;
 		private Vector3 lightSpecularColor;
 
+		Random rand;
+
 		public RunJumpSwingMan() {
 			graphics = new GraphicsDeviceManager( this );
 
@@ -44,6 +46,7 @@ namespace RunJumpSwingMan.src {
 		/// and initialize them as well.
 		/// </summary>
 		protected override void Initialize() {
+			rand = new Random();
 			camera = new Camera();
 			aspectRatio = graphics.GraphicsDevice.Viewport.Width / graphics.GraphicsDevice.Viewport.Height;
 
@@ -100,13 +103,26 @@ namespace RunJumpSwingMan.src {
 				Position = halfFloorLength * Vector3.UnitZ,
 				Size = new Vector3( 2 * halfFloorLength, 2 * halfFloorLength, 0.1f )
 			};
-
+			
 			world.AddEntity( floor );
+			/*
 			world.AddEntity( ceiling );
 			world.AddEntity( wall1 );
 			world.AddEntity( wall2 );
 			world.AddEntity( wall3 );
 			world.AddEntity( wall4 );
+			*/
+			Block flooro = new Block();
+			flooro.Size = new Vector3(200, 10, 200);
+			flooro.Position = new Vector3(0,-10,0);
+			world.AddEntity(flooro);
+			for (int i = 0; i < 100; i++)
+			{
+				Block blockooo = new Block();
+				blockooo.Size = new Vector3(rand.Next(20), rand.Next(20), rand.Next(20));
+				blockooo.Position = new Vector3(rand.Next(-100, 100), rand.Next(0, 100), rand.Next(-100, 100));
+				world.AddEntity(blockooo);
+			}
 
 			world.ProcessEntityQueues();
 
@@ -114,7 +130,7 @@ namespace RunJumpSwingMan.src {
 
 			lightDiffuseColor = new Vector3( 1.0f, 1.0f, 1.0f ); // a white light
 			lightDirection = new Vector3( 0.33f, 0.66f, -0.1f );  // some direction of light
-			lightSpecularColor = new Vector3( 1.0f, 1.0f, 1.0f ); // with white highlights
+			lightSpecularColor = new Vector3( 1.0f, .0f, .0f ); // with white highlights
 
 			base.Initialize();
 		}
