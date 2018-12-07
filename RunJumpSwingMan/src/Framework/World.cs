@@ -3,17 +3,21 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace RunJumpSwingMan.src.Framework {
 
 	public class World {
 
 		private List<Entity> _entities;
-		public ReadOnlyCollection<Entity> Entities => new ReadOnlyCollection<Entity>( _entities );
+		public ReadOnlyCollection<Entity> Entities => new ReadOnlyCollection<Entity>(_entities);
 
 		//lists of items to add and remove
 		private LinkedList<Entity> _addList;
 		private LinkedList<Entity> _removeList;
+
+		public GraphicsDeviceManager DeviceManager { get; set; }
+		public BasicEffect DefaultEffects { get; set; }
 
 		/// <summary>
 		/// Acceleration due to gravity. duh.
@@ -29,6 +33,7 @@ namespace RunJumpSwingMan.src.Framework {
 			_removeList = new LinkedList<Entity>();
 
 			GravityAcceleration = new Vector3( 0, -10, 0 );
+			
 		}
 
 		/// <summary>
@@ -102,7 +107,7 @@ namespace RunJumpSwingMan.src.Framework {
 
 				float? dist = ray.Intersects( ent.Bounds );
 				//if dist actually has a value and is less than the current min and the range
-				if ( dist.HasValue && dist.Value <= range && dist.Value < closestDist ) {
+				if ( dist.HasValue && dist.Value <= range && dist.Value < closestDist && dist.Value >= 0) {
 					closestHit = ent;
 					closestDist = dist.Value;
 				}
@@ -133,14 +138,14 @@ namespace RunJumpSwingMan.src.Framework {
 				//if dist actually has a value and is less than the current min and the range
 				if ( dist.HasValue ) {
 					//Console.WriteLine(dist + " " + closestDist + " " + range);
-					if ( dist.Value <= range && dist.Value < closestDist ) {
+					if ( dist.Value <= range && dist.Value < closestDist && dist.Value >= 0) {
 						closestHit = ent;
 						closestDist = dist.Value;
 					}
 				}
 			}
 			if ( closestHit != null ) {
-				return new Tuple<Entity, Vector3, float>( closestHit, ray.Direction * closestDist, closestDist );
+				return new Tuple<Entity, Vector3, float>( closestHit, ray.Position + ray.Direction * closestDist, closestDist );
 			} else {
 				return null;
 			}
@@ -154,6 +159,10 @@ namespace RunJumpSwingMan.src.Framework {
 			foreach ( Entity ent in _addList ) {
 				_entities.Add( ent );
 				ent.Parent = this;
+				ent.VertexBuffer = Shapes.IndexedVertexBufferCube(DeviceManager, Color.SkyBlue);
+				ent.IndexBuffer = Shapes.IndexBufferCube(DeviceManager);
+				ent.PrimitiveCount = Shapes.PrimitiveCountCube();
+				ent.BasicEffect = new BasicEffect(DefaultEffects.GraphicsDevice);
 			}
 			_addList.Clear();
 

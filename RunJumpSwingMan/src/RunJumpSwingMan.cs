@@ -17,9 +17,9 @@ namespace RunJumpSwingMan.src {
 
 		private Camera camera;
 		private float aspectRatio;
-		private readonly float rotationSpeed = 0.01f;
-		private readonly float maxXRotation = 2.0f * ( float )Math.PI; // radians
-		private readonly float maxYRotation = 2.0f * ( float )Math.PI; //In radians (2pi for no limit)
+
+		private const int WORLD_RANGE = 200;
+		private const int NUM_BLOCKS = 200;
 
 		private Texture2D crosshairTexture;
 		private Model spikeModel;
@@ -59,71 +59,21 @@ namespace RunJumpSwingMan.src {
 				Position = Vector3.Zero
 			};
 			world.AddEntity( player );
-
-			//Block block = new Block {
-			//	Position = new Vector3( 0.0f, -10.0f, 0.0f )
-			//};
-			//world.AddEntity( block );
-
-			//Block block2 = new Block {
-			//	Position = new Vector3( 0.0f, -5.0f, 0.0f ),
-			//	Size = new Vector3( 100.0f, 1.0f, 100.0f )
-			//};
-			//world.AddEntity( block2 );
-
-			float halfFloorLength = 50.0f;
-
-			Block floor = new Block() {
-				//Position = halfFloorLength * Vector3.UnitZ,
-				Position = -halfFloorLength * Vector3.UnitY,
-				Size = new Vector3( 2 * halfFloorLength, 0.1f, 2 * halfFloorLength )
-			};
-
-			Block ceiling = new Block() {
-				Position = halfFloorLength * Vector3.UnitY,
-				Size = new Vector3( 2 * halfFloorLength, 0.1f, 2 * halfFloorLength )
-			};
-
-			Block wall1 = new Block() {
-				Position = -halfFloorLength * Vector3.UnitX,
-				Size = new Vector3( 0.1f , 2 * halfFloorLength, 2 * halfFloorLength )
-			};
-
-			Block wall2 = new Block() {
-				Position = halfFloorLength * Vector3.UnitX,
-				Size = new Vector3( 0.1f, 2 * halfFloorLength, 2 * halfFloorLength )
-			};
-
-			Block wall3 = new Block() {
-				Position = -halfFloorLength * Vector3.UnitZ,
-				Size = new Vector3( 2 * halfFloorLength, 2 * halfFloorLength, 0.1f )
-			};
-
-			Block wall4 = new Block() {
-				Position = halfFloorLength * Vector3.UnitZ,
-				Size = new Vector3( 2 * halfFloorLength, 2 * halfFloorLength, 0.1f )
-			};
 			
-			world.AddEntity( floor );
-			/*
-			world.AddEntity( ceiling );
-			world.AddEntity( wall1 );
-			world.AddEntity( wall2 );
-			world.AddEntity( wall3 );
-			world.AddEntity( wall4 );
-			*/
 			Block flooro = new Block();
-			flooro.Size = new Vector3(200, 10, 200);
+			flooro.Size = new Vector3(20, 10, 20);
 			flooro.Position = new Vector3(0,-10,0);
 			world.AddEntity(flooro);
-			for (int i = 0; i < 100; i++)
+			int rangeMid = WORLD_RANGE / 2;
+			for (int i = 0; i < NUM_BLOCKS; i++)
 			{
 				Block blockooo = new Block();
 				blockooo.Size = new Vector3(rand.Next(20), rand.Next(20), rand.Next(20));
-				blockooo.Position = new Vector3(rand.Next(-100, 100), rand.Next(0, 100), rand.Next(-100, 100));
+				blockooo.Position = new Vector3(rand.Next(-rangeMid, rangeMid), rand.Next(-rangeMid, rangeMid), rand.Next(-rangeMid, rangeMid));
 				world.AddEntity(blockooo);
 			}
-
+			world.DefaultEffects = new BasicEffect(graphics.GraphicsDevice);
+			world.DeviceManager = graphics;
 			world.ProcessEntityQueues();
 
 			IsMouseVisible = false;
@@ -152,13 +102,15 @@ namespace RunJumpSwingMan.src {
 
 			crosshairTexture = Content.Load<Texture2D>( "textures/crosshair" );
 			spikeModel = Content.Load<Model>( "models/spike" );
-
+			/*
 			foreach ( Entity entity in world.Entities ) {
 				entity.VertexBuffer = Shapes.IndexedVertexBufferCube( graphics, Color.SkyBlue );
 				entity.IndexBuffer = Shapes.IndexBufferCube( graphics );
 				entity.PrimitiveCount = Shapes.PrimitiveCountCube();
 				entity.BasicEffect = new BasicEffect( graphics.GraphicsDevice );
 			}
+			*/
+			
 
 			//InitContentOfSpike();
 		}

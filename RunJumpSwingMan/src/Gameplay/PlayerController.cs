@@ -39,6 +39,10 @@ namespace RunJumpSwingMan.src.Gameplay {
 			}
 
 			SwingControl();
+
+			if (!swingPoint.HasValue && Subject.Grounded) {
+				Subject.Velocity = new Vector3(0, Subject.Velocity.Y, 0);
+			}
 		}
 
 		/// <summary>
@@ -48,9 +52,17 @@ namespace RunJumpSwingMan.src.Gameplay {
 			if (Input.CurrentMouse.LeftButton == ButtonState.Pressed) {
 				if (Input.OldMouse.LeftButton == ButtonState.Released) {
 					//raycast at where the player is looking
-					Tuple<Entity, Vector3, float> castresult = Subject.Parent.Raycast(new Ray(Subject.Position, Subject.LookVector), maxSwingLength, Subject);
+					Ray hookRay = new Ray(Subject.Position, Subject.LookVector);
+					Tuple<Entity, Vector3, float> castresult = Subject.Parent.Raycast(hookRay, maxSwingLength, Subject);
+					
 					if (castresult != null) {
 						swingPoint = castresult.Item2;
+						/*
+						Block hitBlock = new Block();
+						hitBlock.Size = new Vector3(1, 1, 1);
+						hitBlock.Position = castresult.Item2;
+						Subject.Parent.AddEntity(hitBlock);
+						*/
 					}
 				}
 				Console.WriteLine("SwingP: " + swingPoint + "\nPlayerP: " + Subject.Position);
@@ -70,10 +82,10 @@ namespace RunJumpSwingMan.src.Gameplay {
 				Vector3 dif = Subject.Position - sPoint;
 				//if the distance between the player and the swingpoint is longer than the 
 				if (dif.LengthSquared() > Math.Pow(maxSwingLength, 2)) {
+					
 					dif.Normalize();
 					//reposition player
-					Subject.Position = sPoint + dif * maxSwingLength;
-
+					Subject.Position = sPoint + dif * maxSwingLength;	
 					Subject.Velocity = Geometry.PerpendicularProjection(Subject.Velocity, dif);
 				}
 			}
