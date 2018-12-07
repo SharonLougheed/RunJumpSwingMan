@@ -21,7 +21,7 @@ namespace RunJumpSwingMan.src.Gameplay {
 		}
 
 		public PlayerController( Player sub ) {
-			maxSwingLength = 50;
+			maxSwingLength = 30;
 			swingPoint = null;
 			MouseSensitivity = 10f;
 			Subject = sub;
