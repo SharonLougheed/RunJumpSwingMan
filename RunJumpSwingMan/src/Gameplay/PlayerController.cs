@@ -65,7 +65,6 @@ namespace RunJumpSwingMan.src.Gameplay {
 						*/
 					}
 				}
-				Console.WriteLine("SwingP: " + swingPoint + "\nPlayerP: " + Subject.Position);
 			} else {
 				swingPoint = null;
 			}
