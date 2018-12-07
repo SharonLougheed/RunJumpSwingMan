@@ -48,7 +48,7 @@ namespace RunJumpSwingMan.src {
 			ViewMatrix = Matrix.Identity;
 			ProjectionMatrix = Matrix.Identity;
 			ViewAngle = MathHelper.PiOver4;
-			NearClipPlaneDistance = 1.0f;
+			NearClipPlaneDistance = 0.1f;
 			FarClipPlaneDistance = 500.0f;
 		}
 
